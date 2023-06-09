@@ -1,0 +1,11 @@
+Items: {
+	ChestOutletPump: {
+		DisplayName: Chest Outlet Pump
+		Tooltip: ""
+	}
+
+	ChestInletPump: {
+		DisplayName: Chest Inlet Pump
+		Tooltip: ""
+	}
+}

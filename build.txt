@@ -1,0 +1,3 @@
+displayName = MagiTronics
+author = Clampitar
+version = 0.2
