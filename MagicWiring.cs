@@ -1,12 +1,23 @@
 ﻿using Terraria;
 using Terraria.ID;
-using Terraria.UI;
+using System.Collections.Generic;
 
 
 namespace MagiTronics
 {
     public class MagicWiring
     {
+        internal class ChestLocation
+        {
+            public int x;
+            public int y;
+            public int id;
+
+            public ChestLocation(int x, int y, int id) {
+                this.x = x; this.y = y; this.id = id;
+            }
+        }
+
         public static int[] _chestOutPumpX = new int[400];
         public static int[] _chestOutPumpY = new int[400];
         public static int _numChestOutPump = 0;
@@ -14,6 +25,25 @@ namespace MagiTronics
         public static int[] _chestInPumpX = new int[400];
         public static int[] _chestInPumpY = new int[400];
         public static int _numChestInPump = 0;
+
+        static List<ChestLocation> wiredChests = new List<ChestLocation>();
+
+        public static void HitwireChest(int i, int j)
+        {
+            Tile tile = Main.tile[i, j];
+            int type = (int)tile.TileType;
+            switch(type)
+            {
+                case TileID.Containers:
+                case TileID.Containers2:
+                case TileID.FakeContainers:
+                case TileID.FakeContainers2:
+                case TileID.Dressers:
+                    wiredChests.Add(new ChestLocation(i, j, type));
+                    break;
+                    
+            }
+        }
 
         public static void XferWater()
         {
@@ -36,17 +66,16 @@ namespace MagiTronics
 
             _numChestInPump = 0;
             _numChestOutPump = 0;
+            wiredChests.Clear();
         }
 
         private static void LiquidToChests()
         {
             for (int i = 0; i < _numChestOutPump; i++)
             {
-                int chestIndex = FindAdjacentChest(_chestOutPumpX[i], _chestOutPumpY[i]);
-                if (chestIndex != -1)
+                Chest chest = FindWiredChest();
+                if (chest != null)
                 {
-                    Chest chest = Main.chest[chestIndex];
-                    Main.NewText("chest at "+chestIndex+" is "+chest);
                     Item[] items = chest.item;
                     ChestPumpInventory inv = new ChestPumpInventory(items);
                     for (int inpumpindex = 0; inpumpindex < Wiring._numInPump; inpumpindex++)
@@ -66,7 +95,6 @@ namespace MagiTronics
                         }
                     }
                 }
-                Main.NewText("chest at " + chestIndex + " is  n?");
                 if (Main.netMode == NetmodeID.MultiplayerClient)
                 {
 
@@ -78,10 +106,9 @@ namespace MagiTronics
         {
             for(int i = 0; i < _numChestInPump; i++)
             {
-                int chestIndex = FindAdjacentChest(_chestInPumpX[i], _chestInPumpY[i]);
-                if(chestIndex != -1)
+                Chest chest = FindWiredChest();
+                if (chest != null)
                 {
-                    Chest chest = Main.chest[chestIndex];
                     Item[] items = chest.item;
                     ChestPumpInventory inv = new ChestPumpInventory(items);
                     for (int outPumpIndex = 0; outPumpIndex < Wiring._numOutPump; outPumpIndex++)
@@ -105,16 +132,34 @@ namespace MagiTronics
             }
         }
 
-        private static int FindAdjacentChest(int i, int j)
+        private static Chest FindWiredChest()
         {
-            int chest = Chest.FindChest(i + 2, j);
-            if (chest == -1)
+            foreach(ChestLocation cl in wiredChests)
             {
-                chest = Chest.FindChest(i - 2, j);
+                int chestIndex = PatchedFindChestByGuessing(cl);
+                if (chestIndex != -1)
+                    return Main.chest[chestIndex];
             }
-            return chest;
+            return null;
         }
-        
+
+        private static int PatchedFindChestByGuessing(ChestLocation cl)
+        {
+            int length = 2;
+            int height = 2;
+            if (cl.id == TileID.Dressers) length = 3;
+            for (int i = 0; i < 8000; i++)
+            {
+                if (Main.chest[i] != null && Main.chest[i].x > cl.x - length && Main.chest[i].x <= cl.x && Main.chest[i].y > cl.y - height && Main.chest[i].y <= cl.y)
+                {
+                    return i;
+                }
+            }
+            
+            return -1;
+        }
+
+
 
     }
 }

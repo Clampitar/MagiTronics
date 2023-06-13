@@ -137,6 +137,7 @@ namespace MagiTronics
                 }
                 else
                 {
+                    Main.NewText("new index: " + bucketindex);
                     items[bucketindex] = new Item(ItemID.EmptyBucket);
                     usedItem = items[bucketindex];
                     return true;
@@ -144,6 +145,7 @@ namespace MagiTronics
             }
             if (items[bucketindex].stack >= items[bucketindex].maxStack)
             {
+                Main.NewText(bucketindex + "at max stack");
                 bucketindex = -1;
                 return TransferFromBucket(liquidType);
             }

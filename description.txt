@@ -1,7 +1,6 @@
 Introduces two new pumps that interact with chests, allowing you to pump water directly in and out of chests.
 
-Step 1. Place pump directly to the left or right of a chest
-Step 2. Fill the chest with buckets
-Step 3. Connect the pump to a corresponding vanilla pump
+Step 1. Fill a chest with buckets or sponges
+Step 2. Connect modded pump, vanilla pump and chest with wiring
 
 And finally, activate the the mechanism and voila!

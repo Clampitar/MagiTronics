@@ -1,36 +1,12 @@
 ﻿using Terraria.ModLoader;
 using Terraria;
 using Terraria.ObjectData;
-using Terraria.DataStructures;
-using MonoMod.Cil;
-using System;
+
 
 namespace MagiTronics.Tiles
 {
     public class ChestOutletPump : ModTile
     {
-        public override void Load()
-        {
-            //IL.Terraria.Wiring.XferWater += Wiring_XferWater; ;
-            IL_Wiring.XferWater += Wiring_XferWater;
-        }
-
-        private void Wiring_XferWater(MonoMod.Cil.ILContext il)
-        {
-            try
-            {
-                ILCursor cursor = new ILCursor(il);
-                cursor.Goto(0);
-
-                cursor.Emit(Mono.Cecil.Cil.OpCodes.Call, typeof(MagicWiring).GetMethod("XferWater", new Type[] { }));
-            }
-            catch
-            {
-
-                MonoModHooks.DumpIL(ModContent.GetInstance<MagiTronics>(), il);
-            }
-            MonoModHooks.DumpIL(ModContent.GetInstance<MagiTronics>(), il);
-        }
 
         public override void SetStaticDefaults()
         {

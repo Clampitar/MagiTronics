@@ -2,13 +2,13 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace MagiTronics.Items
 {
     public class ChestOutletPump : ModItem
     {
         
+
         public override void SetDefaults()
         {
             Item.maxStack = 9999;
