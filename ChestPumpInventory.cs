@@ -1,10 +1,10 @@
-﻿using Terraria.ID;
+﻿using System.Collections.Generic;
 using Terraria;
-using System.Collections.Generic;
+using Terraria.ID;
 
 namespace MagiTronics
 {
-    internal class ChestPumpInventory
+    internal class ChestPumpInventory : ManagableChest
     {
         public Item[] items;
         Queue<int> emptySpaces;
@@ -14,10 +14,6 @@ namespace MagiTronics
         readonly int[] bucketSpaces = new int[4];
         readonly bool[] sponge = new bool[4];
         readonly int[] bucketID;
-        private bool invChanged;
-
-        public Item usedItem = new Item(ItemID.EmptyBucket);
-        public Item madeItem = new Item(ItemID.EmptyBucket);
 
 
         public ChestPumpInventory(Item[] items)
@@ -32,8 +28,6 @@ namespace MagiTronics
             bucketID[0] = ItemID.WaterBucket;
             bucketID[1] = ItemID.LavaBucket;
             bucketID[2] = ItemID.HoneyBucket;
-            //int infiniteWaterID = ItemID.BottomlessBucket;
-            //int infiniteLavaID = ItemID.BottomlessLavaBucket;
             emptySpaces = new Queue<int>();
             for (int i = 0; i < items.Length; i++)
             {
@@ -67,7 +61,7 @@ namespace MagiTronics
             }
         }
 
-        public bool WaterOut(out int liquidType)
+        public override bool WaterOut(out int liquidType)
         {
             if(bottomlessBucketType != -1)
             {
@@ -93,7 +87,6 @@ namespace MagiTronics
                         items[bucketSpaces[type]].stack--;
                     }
 
-                    invChanged = true;
                     liquidType = type;
                     return true;
                 }
@@ -101,7 +94,7 @@ namespace MagiTronics
             return false;
         }
 
-        public bool WaterIn(int liquidType)
+        public override bool WaterIn(int liquidType)
         {
             if (sponge[liquidType]) return true;
             if (liquidType == 3) return false;
@@ -120,7 +113,6 @@ namespace MagiTronics
                             }
                         }
                     } else items[bucketindex].stack--;
-                    invChanged = true;
                     return true;
                 }
             return false;
@@ -139,7 +131,6 @@ namespace MagiTronics
                 {
                     Main.NewText("new index: " + bucketindex);
                     items[bucketindex] = new Item(ItemID.EmptyBucket);
-                    usedItem = items[bucketindex];
                     return true;
                 }
             }
@@ -150,7 +141,6 @@ namespace MagiTronics
                 return TransferFromBucket(liquidType);
             }
             items[bucketindex].stack++;
-            usedItem = items[bucketindex];
             return true;
         }
 
@@ -166,7 +156,6 @@ namespace MagiTronics
                 }
                 else {
                     items[bucketSpaces[liquidType]] = new Item(bucketID[liquidType]);
-                    madeItem = items[bucketSpaces[liquidType]];
                     return true;
                 }
             }
@@ -176,13 +165,7 @@ namespace MagiTronics
                 return TransferToBucket(liquidType);
             }
             items[bucketSpaces[liquidType]].stack++;
-            madeItem = items[bucketSpaces[liquidType]];
             return true;
-        }
-
-        public bool getInvChanged()
-        {
-            return invChanged;
         }
 
     }

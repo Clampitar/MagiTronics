@@ -7,16 +7,7 @@ namespace MagiTronics
 {
     public class MagicWiring
     {
-        internal class ChestLocation
-        {
-            public int x;
-            public int y;
-            public int id;
-
-            public ChestLocation(int x, int y, int id) {
-                this.x = x; this.y = y; this.id = id;
-            }
-        }
+        
 
         public static int[] _chestOutPumpX = new int[400];
         public static int[] _chestOutPumpY = new int[400];
@@ -26,7 +17,7 @@ namespace MagiTronics
         public static int[] _chestInPumpY = new int[400];
         public static int _numChestInPump = 0;
 
-        static List<ChestLocation> wiredChests = new List<ChestLocation>();
+        private static ChestManager chestManager = new ChestManager();
 
         public static void HitwireChest(int i, int j)
         {
@@ -36,10 +27,9 @@ namespace MagiTronics
             {
                 case TileID.Containers:
                 case TileID.Containers2:
-                case TileID.FakeContainers:
-                case TileID.FakeContainers2:
                 case TileID.Dressers:
-                    wiredChests.Add(new ChestLocation(i, j, type));
+                case TileID.ItemFrame:
+                    chestManager.AddChest(i, j, type);
                     break;
                     
             }
@@ -66,18 +56,15 @@ namespace MagiTronics
 
             _numChestInPump = 0;
             _numChestOutPump = 0;
-            wiredChests.Clear();
+            chestManager = new ChestManager();
         }
 
         private static void LiquidToChests()
         {
             for (int i = 0; i < _numChestOutPump; i++)
             {
-                Chest chest = FindWiredChest();
-                if (chest != null)
+                if (!chestManager.Empty())
                 {
-                    Item[] items = chest.item;
-                    ChestPumpInventory inv = new ChestPumpInventory(items);
                     for (int inpumpindex = 0; inpumpindex < Wiring._numInPump; inpumpindex++)
                     {
                         int inPumpX = Wiring._inPumpX[inpumpindex];
@@ -87,7 +74,7 @@ namespace MagiTronics
                         {
                             continue;
                         }
-                        bool success = inv.WaterIn(tile.LiquidType);
+                        bool success = chestManager.WaterIn(tile.LiquidType);
                         if (success)
                         {
                             tile.LiquidAmount = 0;
@@ -106,11 +93,8 @@ namespace MagiTronics
         {
             for(int i = 0; i < _numChestInPump; i++)
             {
-                Chest chest = FindWiredChest();
-                if (chest != null)
+                if (!chestManager.Empty())
                 {
-                    Item[] items = chest.item;
-                    ChestPumpInventory inv = new ChestPumpInventory(items);
                     for (int outPumpIndex = 0; outPumpIndex < Wiring._numOutPump; outPumpIndex++)
                     {
                         int outPumpX = Wiring._outPumpX[outPumpIndex];
@@ -120,7 +104,7 @@ namespace MagiTronics
                         {
                             continue;
                         }
-                        bool success = inv.WaterOut(out int liquidType);
+                        bool success = chestManager.WaterOut(out int liquidType);
                         if (success)
                         {
                             tile.LiquidType = liquidType;
@@ -132,32 +116,7 @@ namespace MagiTronics
             }
         }
 
-        private static Chest FindWiredChest()
-        {
-            foreach(ChestLocation cl in wiredChests)
-            {
-                int chestIndex = PatchedFindChestByGuessing(cl);
-                if (chestIndex != -1)
-                    return Main.chest[chestIndex];
-            }
-            return null;
-        }
-
-        private static int PatchedFindChestByGuessing(ChestLocation cl)
-        {
-            int length = 2;
-            int height = 2;
-            if (cl.id == TileID.Dressers) length = 3;
-            for (int i = 0; i < 8000; i++)
-            {
-                if (Main.chest[i] != null && Main.chest[i].x > cl.x - length && Main.chest[i].x <= cl.x && Main.chest[i].y > cl.y - height && Main.chest[i].y <= cl.y)
-                {
-                    return i;
-                }
-            }
-            
-            return -1;
-        }
+        
 
 
 
