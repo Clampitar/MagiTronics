@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameContent.Tile_Entities;
 using Terraria.ID;
 
 namespace MagiTronics
@@ -92,13 +94,19 @@ namespace MagiTronics
                     int chestIndex = PatchedFindChestByGuessing(location);
                     ChestPumpInventory chest = new ChestPumpInventory(Main.chest[chestIndex].item);
                     chests.Add(chest);
-                    return true;
-                    case TileID.ItemFrame:
-                    chestIndex = PatchedFindChestByGuessing(location);
-                    Main.NewText("item rack id: "+ Main.itemFrameCounter[0]);
+                    break;
+                case TileID.ItemFrame:
+                    chestIndex = TEItemFrame.Find(location.x, location.y);
+                    Main.NewText("item rack id: "+ chestIndex);
+                    if (chestIndex != -1)
+                    {
+                        TEItemFrame t = (TEItemFrame)TileEntity.ByID[chestIndex];
+                        ItemFrame ir = new ItemFrame(t.item);
+                        chests.Add(ir);
+                    }
                     break;
              }
-            return false;
+            return true;
         }   
 
 
