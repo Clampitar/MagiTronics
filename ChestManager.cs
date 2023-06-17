@@ -22,10 +22,14 @@ namespace MagiTronics
             }
         }
 
-        private bool piggyBank;
-        private bool safe;
-        private bool voidVault;
-        private bool defendersForge;
+        private bool hasPiggyBank;
+        private bool hasSafe;
+        private bool hasVoidVault;
+        private bool hasDefendersForge;
+        private ChestPumpInventory piggyBank;
+        private ChestPumpInventory safe;
+        private ChestPumpInventory voidVault;
+        private ChestPumpInventory defendersForge;
 
         private Queue<ChestLocation> unknownChests = new Queue<ChestLocation>();
         private List<ManagableChest> chests = new List<ManagableChest>();
@@ -35,13 +39,14 @@ namespace MagiTronics
             switch(type)
             {
                 case TileID.PiggyBank:
-                    piggyBank = true; break;
+                    hasPiggyBank = true;
+                    break;
                 case TileID.Safes:
-                    safe = true; break;
+                    hasSafe = true; break;
                 case TileID.VoidVault:
-                    voidVault = true; break;
+                    hasVoidVault = true; break;
                 case TileID.DefendersForge:
-                    defendersForge = true; break;
+                    hasDefendersForge = true; break;
                 default:
                     unknownChests.Enqueue(new ChestLocation(x, y, type));
                     break;
@@ -53,6 +58,9 @@ namespace MagiTronics
 
         public bool WaterOut(out int liquidType)
         {
+            ChestPumpInventory bank = playerChest();
+            if (bank != null && bank.WaterOut(out liquidType))
+                return true;
             foreach (var chest in chests)
             {
                 if (chest.WaterOut(out liquidType))
@@ -68,6 +76,9 @@ namespace MagiTronics
         }
         public bool WaterIn(int liquidType)
         {
+            ChestPumpInventory bank = playerChest();
+            if (bank != null && bank.WaterIn(liquidType))
+                return true;
             foreach (var chest in chests)
             {
                 if (chest.WaterIn(liquidType))
@@ -79,6 +90,38 @@ namespace MagiTronics
                     return true;
             }
             return false;
+        }
+
+        private ChestPumpInventory playerChest()
+        {
+            if(Main.netMode == NetmodeID.SinglePlayer)
+            {
+                if (hasPiggyBank)
+                {
+                    if(piggyBank == null)
+                        piggyBank = new ChestPumpInventory(Main.player[0].bank.item);
+                    return piggyBank;
+                }
+                if (hasSafe)
+                {
+                    if (safe == null)
+                        safe = new ChestPumpInventory(Main.player[0].bank2.item);
+                    return safe;
+                }
+                if (hasVoidVault)
+                {
+                    if (voidVault == null)
+                        voidVault = new ChestPumpInventory(Main.player[0].bank4.item);
+                    return voidVault;
+                }
+                if (hasDefendersForge)
+                {
+                    if (defendersForge == null)
+                        defendersForge = new ChestPumpInventory(Main.player[0].bank3.item);
+                    return defendersForge;
+                }
+            }
+            return null;
         }
 
 
@@ -96,7 +139,7 @@ namespace MagiTronics
                     chests.Add(chest);
                     break;
                 case TileID.ItemFrame:
-                    chestIndex = TEItemFrame.Find(location.x, location.y);
+                    chestIndex = ItemFrame.FindByGuessing(location.x, location.y);
                     Main.NewText("item rack id: "+ chestIndex);
                     if (chestIndex != -1)
                     {

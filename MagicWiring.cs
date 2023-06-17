@@ -29,6 +29,10 @@ namespace MagiTronics
                 case TileID.Containers2:
                 case TileID.Dressers:
                 case TileID.ItemFrame:
+                case TileID.PiggyBank:
+                case TileID.Safes:
+                case TileID.VoidVault:
+                case TileID.DefendersForge:
                     chestManager.AddChest(i, j, type);
                     break;
                     
@@ -63,23 +67,20 @@ namespace MagiTronics
         {
             for (int i = 0; i < _numChestOutPump; i++)
             {
-                if (!chestManager.Empty())
+                for (int inpumpindex = 0; inpumpindex < Wiring._numInPump; inpumpindex++)
                 {
-                    for (int inpumpindex = 0; inpumpindex < Wiring._numInPump; inpumpindex++)
+                    int inPumpX = Wiring._inPumpX[inpumpindex];
+                    int inPumpY = Wiring._inPumpY[inpumpindex];
+                    Tile tile = Main.tile[inPumpX, inPumpY];
+                    if (tile.LiquidAmount <= 0)
                     {
-                        int inPumpX = Wiring._inPumpX[inpumpindex];
-                        int inPumpY = Wiring._inPumpY[inpumpindex];
-                        Tile tile = Main.tile[inPumpX, inPumpY];
-                        if (tile.LiquidAmount <= 0)
-                        {
-                            continue;
-                        }
-                        bool success = chestManager.WaterIn(tile.LiquidType);
-                        if (success)
-                        {
-                            tile.LiquidAmount = 0;
-                            WorldGen.SquareTileFrame(inPumpX, inPumpY);
-                        }
+                        continue;
+                    }
+                    bool success = chestManager.WaterIn(tile.LiquidType);
+                    if (success)
+                    {
+                        tile.LiquidAmount = 0;
+                        WorldGen.SquareTileFrame(inPumpX, inPumpY);
                     }
                 }
                 if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -93,24 +94,21 @@ namespace MagiTronics
         {
             for(int i = 0; i < _numChestInPump; i++)
             {
-                if (!chestManager.Empty())
+                for (int outPumpIndex = 0; outPumpIndex < Wiring._numOutPump; outPumpIndex++)
                 {
-                    for (int outPumpIndex = 0; outPumpIndex < Wiring._numOutPump; outPumpIndex++)
+                    int outPumpX = Wiring._outPumpX[outPumpIndex];
+                    int outPumpY = Wiring._outPumpY[outPumpIndex];
+                    Tile tile = Main.tile[outPumpX, outPumpY];
+                    if (tile.LiquidAmount >= 255)
                     {
-                        int outPumpX = Wiring._outPumpX[outPumpIndex];
-                        int outPumpY = Wiring._outPumpY[outPumpIndex];
-                        Tile tile = Main.tile[outPumpX, outPumpY];
-                        if (tile.LiquidAmount >= 255)
-                        {
-                            continue;
-                        }
-                        bool success = chestManager.WaterOut(out int liquidType);
-                        if (success)
-                        {
-                            tile.LiquidType = liquidType;
-                            tile.LiquidAmount = 255;
-                            WorldGen.SquareTileFrame(outPumpX, outPumpY);
-                        }
+                        continue;
+                    }
+                    bool success = chestManager.WaterOut(out int liquidType);
+                    if (success)
+                    {
+                        tile.LiquidType = liquidType;
+                        tile.LiquidAmount = 255;
+                        WorldGen.SquareTileFrame(outPumpX, outPumpY);
                     }
                 }
             }
