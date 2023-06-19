@@ -24,13 +24,7 @@ namespace MagiTronics.Tiles
             x -= tile.TileFrameX / 18 % 3;//taken from ExampleMod's Lamp
             y -= tile.TileFrameY / 18 % 3;
 
-            Wiring._inPumpX[Wiring._numInPump] = x;
-            Wiring._inPumpY[Wiring._numInPump] = y;
-            Wiring._numInPump++;
-
-            MagicWiring._chestInPumpX[MagicWiring._numChestInPump] = x;
-            MagicWiring._chestInPumpY[MagicWiring._numChestInPump] = y;
-            MagicWiring._numChestInPump++;
+            MagicWiring.newInPump(x, y);
 
             Wiring.SkipWire(x, y);
             Wiring.SkipWire(x, y + 1);

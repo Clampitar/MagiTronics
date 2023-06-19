@@ -32,7 +32,9 @@ namespace MagiTronics.Items
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            var line = new TooltipLine(Mod, "Description", "Transfers liquids from inlet pumps to directly adjecent chests");
+            var line = new TooltipLine(Mod, "Description", "Transfers liquids to chests");
+            tooltips.Add(line);
+            line = new TooltipLine(Mod, "Description", "Can also recieve water from inlet pumps");
             tooltips.Add(line);
             line = new TooltipLine(Mod, "Description", "Requires buckets or sponge");
             tooltips.Add(line);

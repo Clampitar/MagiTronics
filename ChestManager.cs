@@ -140,7 +140,6 @@ namespace MagiTronics
                     break;
                 case TileID.ItemFrame:
                     chestIndex = ItemFrame.FindByGuessing(location.x, location.y);
-                    Main.NewText("item rack id: "+ chestIndex);
                     if (chestIndex != -1)
                     {
                         TEItemFrame t = (TEItemFrame)TileEntity.ByID[chestIndex];

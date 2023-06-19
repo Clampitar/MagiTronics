@@ -122,6 +122,16 @@ namespace MagiTronics
         {
             if(bucketindex == -1)
             {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    Item item = items[i];
+                    if (item.type == ItemID.EmptyBucket && item.stack < item.maxStack)
+                    {
+                        bucketindex = i;
+                        item.stack++;
+                        return true;
+                    }
+                }
                 if(!emptySpaces.TryDequeue(out bucketindex))
                 {
                     bucketindex = -1;
@@ -129,14 +139,12 @@ namespace MagiTronics
                 }
                 else
                 {
-                    Main.NewText("new index: " + bucketindex);
                     items[bucketindex] = new Item(ItemID.EmptyBucket);
                     return true;
                 }
             }
             if (items[bucketindex].stack >= items[bucketindex].maxStack)
             {
-                Main.NewText(bucketindex + "at max stack");
                 bucketindex = -1;
                 return TransferFromBucket(liquidType);
             }
@@ -149,6 +157,16 @@ namespace MagiTronics
             
             if (bucketSpaces[liquidType] == -1)
             {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    Item item = items[i];
+                    if (item.type == bucketID[liquidType] && item.stack < item.maxStack)
+                    {
+                        bucketindex = i;
+                        item.stack++;
+                        return true;
+                    }
+                }
                 if (!emptySpaces.TryDequeue(out bucketSpaces[liquidType]))
                 {
                     bucketSpaces[liquidType] = -1;

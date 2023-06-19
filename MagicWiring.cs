@@ -1,21 +1,20 @@
-﻿using Terraria;
+﻿using System.Collections.Generic;
+using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
-using System.Collections.Generic;
-
 
 namespace MagiTronics
 {
     public class MagicWiring
     {
         
+        public static List<Point16> _chestOutPump = new List<Point16>();
+        //public static int _numChestOutPump;
 
-        public static int[] _chestOutPumpX = new int[400];
-        public static int[] _chestOutPumpY = new int[400];
-        public static int _numChestOutPump = 0;
+        public static List<Point16> _chestInPump = new List<Point16>();
+        //public static int _numChestInPump = 0;
 
-        public static int[] _chestInPumpX = new int[400];
-        public static int[] _chestInPumpY = new int[400];
-        public static int _numChestInPump = 0;
+        public static bool addedPump;
 
         private static ChestManager chestManager = new ChestManager();
 
@@ -41,80 +40,138 @@ namespace MagiTronics
 
         public static void XferWater()
         {
-            Wiring._numOutPump -= _numChestOutPump;
-            for (int i = 0; i < _numChestOutPump && i + _numChestOutPump < 20; i++)
+            if (addedPump)
             {
-                Wiring._outPumpX[i] = Wiring._outPumpX[i + _numChestOutPump];
-                Wiring._outPumpY[i] = Wiring._outPumpY[i + _numChestOutPump];
+                Wiring._numOutPump--;
+                for (int i = 0; i < Wiring._numOutPump; i++)
+                {
+                    Wiring._outPumpX[i] = Wiring._outPumpX[i + 1];
+                    Wiring._outPumpY[i] = Wiring._outPumpY[i + 1];
+                }
+                Wiring._numInPump--;
+                for (int i = 0; i < Wiring._numInPump; i++)
+                {
+                    Wiring._inPumpX[i] = Wiring._inPumpX[i + 1];
+                    Wiring._inPumpY[i] = Wiring._inPumpY[i + 1];
+                }
+                addedPump = false;
             }
-            Wiring._numInPump -= _numChestInPump;
-            for (int i = 0; i < _numChestInPump && i + _numChestInPump < 20; i++)
+            string pumps = string.Empty;
+            pumps += "it has "+Wiring._numOutPump+" outPumps: ";
+            for(int i = 0; i < Wiring._numOutPump; i++)
             {
-                Wiring._inPumpX[i] = Wiring._inPumpX[i + _numChestInPump];
-                Wiring._inPumpY[i] = Wiring._inPumpY[i + _numChestInPump];
+                pumps += "["+Wiring._outPumpX[i]+", " + Wiring._outPumpY[i] +"];  ";
             }
+            Main.NewText(pumps);
 
-
-            LiquidToChests();
-            LiquidFromChests();
-
-            _numChestInPump = 0;
-            _numChestOutPump = 0;
+            if(_chestOutPump.Count > 0)
+                LiquidToChests();
+            if(_chestInPump.Count > 0)
+                LiquidFromChests();
             chestManager = new ChestManager();
+            _chestOutPump.Clear();
+            _chestInPump.Clear();
         }
 
+        public static void newInPump(int x, int y)
+        {
+            if(Wiring._numInPump < 1)
+            {
+                Wiring._numInPump = 1;
+                addedPump=true;
+            }
+            if (Wiring._numOutPump < 1)
+            {
+                Wiring._numOutPump = 1;
+                addedPump = true;
+            }
+            Main.NewText("there is now "+Wiring._numInPump+" in pumps");
+            _chestInPump.Add(new Point16(x, y));
+        }
+
+        public static void newOutPump(int x, int y)
+        {
+            if (Wiring._numOutPump < 1)
+            {
+                Wiring._numOutPump = 1;
+                addedPump = true;
+            }
+            if (Wiring._numInPump < 1)
+            {
+                Wiring._numInPump = 1;
+                addedPump = true;
+            }
+
+            _chestOutPump.Add(new Point16(x, y));
+        }
+        /**
+         * Makes liquids move from inlet pumps and chest outlet pumps to chests
+         */
         private static void LiquidToChests()
         {
-            for (int i = 0; i < _numChestOutPump; i++)
-            {
-                for (int inpumpindex = 0; inpumpindex < Wiring._numInPump; inpumpindex++)
-                {
-                    int inPumpX = Wiring._inPumpX[inpumpindex];
-                    int inPumpY = Wiring._inPumpY[inpumpindex];
-                    Tile tile = Main.tile[inPumpX, inPumpY];
-                    if (tile.LiquidAmount <= 0)
-                    {
-                        continue;
-                    }
-                    bool success = chestManager.WaterIn(tile.LiquidType);
-                    if (success)
-                    {
-                        tile.LiquidAmount = 0;
-                        WorldGen.SquareTileFrame(inPumpX, inPumpY);
-                    }
-                }
-                if (Main.netMode == NetmodeID.MultiplayerClient)
-                {
 
-                } 
+            for (int inpumpindex = 0; inpumpindex < Wiring._numInPump; inpumpindex++)
+            {
+                int inPumpX = Wiring._inPumpX[inpumpindex];
+                int inPumpY = Wiring._inPumpY[inpumpindex];
+                LiquidToChestsFrom(inPumpX, inPumpY);
+            }
+            foreach (Point16 pump in _chestOutPump)
+            {
+                LiquidToChestsFrom(pump.X, pump.Y);
+                LiquidToChestsFrom(pump.X + 1, pump.Y);
+                LiquidToChestsFrom(pump.X, pump.Y + 1);
+                LiquidToChestsFrom(pump.X + 1, pump.Y + 1);
+            }
+        }
+
+        private static void LiquidToChestsFrom(int x, int y)
+        {
+            Tile tile = Main.tile[x, y];
+            if (tile.LiquidAmount <= 0)
+            {
+                return;
+            }
+            bool success = chestManager.WaterIn(tile.LiquidType);
+            if (success)
+            {
+                tile.LiquidAmount = 0;
+                WorldGen.SquareTileFrame(x, y);
             }
         }
 
         private static void LiquidFromChests()
         {
-            for(int i = 0; i < _numChestInPump; i++)
+            for (int outPumpIndex = 0; outPumpIndex < Wiring._numOutPump; outPumpIndex++)
             {
-                for (int outPumpIndex = 0; outPumpIndex < Wiring._numOutPump; outPumpIndex++)
-                {
-                    int outPumpX = Wiring._outPumpX[outPumpIndex];
-                    int outPumpY = Wiring._outPumpY[outPumpIndex];
-                    Tile tile = Main.tile[outPumpX, outPumpY];
-                    if (tile.LiquidAmount >= 255)
-                    {
-                        continue;
-                    }
-                    bool success = chestManager.WaterOut(out int liquidType);
-                    if (success)
-                    {
-                        tile.LiquidType = liquidType;
-                        tile.LiquidAmount = 255;
-                        WorldGen.SquareTileFrame(outPumpX, outPumpY);
-                    }
-                }
+                int outPumpX = Wiring._outPumpX[outPumpIndex];
+                int outPumpY = Wiring._outPumpY[outPumpIndex];
+                LiquidFromChestTo(outPumpX, outPumpY);
+            }
+            foreach(Point16 pump in _chestInPump) 
+            {
+                LiquidFromChestTo(pump.X, pump.Y);
+                LiquidFromChestTo(pump.X + 1, pump.Y);
+                LiquidFromChestTo(pump.X, pump.Y + 1);
+                LiquidFromChestTo(pump.X + 1, pump.Y + 1);
             }
         }
 
-        
+        private static void LiquidFromChestTo(int x, int y)
+        {
+            Tile tile = Main.tile[x, y];
+            if (tile.LiquidAmount >= 255)
+            {
+                return;
+            }
+            bool success = chestManager.WaterOut(out int liquidType);
+            if (success)
+            {
+                tile.LiquidType = liquidType;
+                tile.LiquidAmount = 255;
+                WorldGen.SquareTileFrame(x, y);
+            }
+        }
 
 
 
