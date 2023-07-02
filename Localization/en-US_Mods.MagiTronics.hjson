@@ -8,4 +8,14 @@ Items: {
 		DisplayName: Chest Inlet Pump
 		Tooltip: ""
 	}
+
+	PickorWrench: {
+		DisplayName: Pickor Wrench
+		Tooltip: ""
+	}
+
+	UsageTerminal: {
+		DisplayName: Usage Terminal
+		Tooltip: ""
+	}
 }

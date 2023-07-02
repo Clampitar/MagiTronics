@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
+using Microsoft.Xna.Framework;
 
 namespace MagiTronics
 {
@@ -36,6 +39,20 @@ namespace MagiTronics
                     break;
                     
             }
+        }
+
+        public static void DrawMagicWire(){
+            foreach (System.Collections.Generic.KeyValuePair<Point16, MagitronicsWorld.TileData> pointData in MagitronicsWorld.dict)
+                Main.spriteBatch.Draw(
+                TextureAssets.Actuator.Value,                                                                       //a texture2d
+                new Vector2(pointData.Key.X * 16 - (int)Main.screenPosition.X, pointData.Key.Y * 16 - (int)Main.screenPosition.Y),      //a vector2
+                new Rectangle(0, 0, TextureAssets.Actuator.Width(), TextureAssets.Actuator.Height()),              //a rectangle
+     new Color(200, 200, 200),                                                                                  //a color
+     0f,                                                                                                //a float
+     default,                                                                                  // a vector2
+     1f,
+     SpriteEffects.None,
+     0f);
         }
 
         public static void XferWater()
