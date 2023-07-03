@@ -42,10 +42,10 @@ namespace MagiTronics
         }
 
         public static void DrawMagicWire(){
-            foreach (System.Collections.Generic.KeyValuePair<Point16, MagitronicsWorld.TileData> pointData in MagitronicsWorld.dict)
+            foreach (Point16 point in MagitronicsWorld.modedActuators)
                 Main.spriteBatch.Draw(
                 TextureAssets.Actuator.Value,                                                                       //a texture2d
-                new Vector2(pointData.Key.X * 16 - (int)Main.screenPosition.X, pointData.Key.Y * 16 - (int)Main.screenPosition.Y),      //a vector2
+                new Vector2(point.X * 16 - (int)Main.screenPosition.X, point.Y * 16 - (int)Main.screenPosition.Y),      //a vector2
                 new Rectangle(0, 0, TextureAssets.Actuator.Width(), TextureAssets.Actuator.Height()),              //a rectangle
      new Color(200, 200, 200),                                                                                  //a color
      0f,                                                                                                //a float

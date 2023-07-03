@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.Audio;
+using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -23,7 +24,7 @@ namespace MagiTronics.Items
             Item.useTurn = true;
             Item.width = 24;
             Item.height = 28;
-            Item.rare = 1;
+            Item.rare = ItemRarityID.Blue;
             Item.value = 20000;
             Item.mech = true;
             Item.tileBoost = 20;
@@ -43,12 +44,24 @@ namespace MagiTronics.Items
 
         public override bool? UseItem(Player player)
         {
-            int x = Player.tileTargetX;
-            int y = Player.tileTargetY;
+            int ammoIndex = -1;
+            for(int i = 0; i < player.inventory.Length; i++)
+            {
+                if (player.inventory[i].stack > 0 && player.inventory[i].type == ModContent.ItemType<UsageTerminal>())
+                {
+                    ammoIndex = i;
+                    break;
+                }
 
+            }
+            if (ammoIndex > 0)
+            {
+                int x = Player.tileTargetX;
+                int y = Player.tileTargetY;
 
-            MagitronicsWorld.AddData(new Terraria.DataStructures.Point16(x, y));
-
+                if (MagitronicsWorld.AddData(new Terraria.DataStructures.Point16(x, y)))
+                    player.inventory[ammoIndex].stack--;
+            }
 
             return true;
         }

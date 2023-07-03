@@ -4,10 +4,14 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using Microsoft.Xna.Framework;
+using MagiTronics.Items;
 
 namespace MagiTronics
 {
-    internal class MagitronicsWorld
+    internal class MagitronicsWorld : ModSystem
     {
 
         internal class TileData
@@ -15,17 +19,44 @@ namespace MagiTronics
             public bool Pickor = false;
         }
 
-        public static Dictionary<Point16, TileData> dict = new Dictionary<Point16, TileData>();
-
-
-        public static void AddData(Point16 point)
+        public override void LoadWorldData(TagCompound tag)
         {
-            if (!dict.ContainsKey(point))
+            modedActuators =  tag.Get<List<Point16>>("modedActuators");
+        }
+
+        public override void SaveWorldData(TagCompound tag)
+        {
+            tag.Set("modedActuators", modedActuators);
+        }
+
+        public static List<Point16> modedActuators = new();
+
+
+        public static bool AddData(Point16 point)
+        {
+            if (!modedActuators.Contains(point))
             {
-                dict.Add(point, new TileData());
+                modedActuators.Add(point);
                 SoundEngine.PlaySound(SoundID.Dig);
+                return true;
+            }
+            return false;
+        }
+
+        public static void RemoveData(int x, int y)
+        {
+            Point16 point = new Point16(x, y);
+            Vector2 pos = new Vector2(x* 16, y*16);
+            if (modedActuators.Contains(point))
+            {
+                modedActuators.Remove(point);
+                SoundEngine.PlaySound(SoundID.Dig);
+                for(int i = 0; i < 5; i++)
+                    Dust.NewDust(pos, 1, 1, DustID.Adamantite);
+                Item.NewItem(new EntitySource_TileBreak(x, y), pos, 16, 16, ModContent.ItemType<UsageTerminal>());
 
             }
         }
+
     }
 }
