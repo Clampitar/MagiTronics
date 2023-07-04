@@ -44,10 +44,10 @@ namespace MagiTronics
         public static void DrawMagicWire(){
             foreach (Point16 point in MagitronicsWorld.modedActuators)
                 Main.spriteBatch.Draw(
-                TextureAssets.Actuator.Value,                                                                       //a texture2d
+                MagitronicsWorld.texture,                                                                       //a texture2d
                 new Vector2(point.X * 16 - (int)Main.screenPosition.X, point.Y * 16 - (int)Main.screenPosition.Y),      //a vector2
-                new Rectangle(0, 0, TextureAssets.Actuator.Width(), TextureAssets.Actuator.Height()),              //a rectangle
-     new Color(200, 200, 200),                                                                                  //a color
+                new Rectangle(0, 0, 16, 16),              //a rectangle
+     new Color(255, 255, 255),                                                                                  //a color
      0f,                                                                                                //a float
      default,                                                                                  // a vector2
      1f,
@@ -73,13 +73,6 @@ namespace MagiTronics
                 }
                 addedPump = false;
             }
-            string pumps = string.Empty;
-            pumps += "it has "+Wiring._numOutPump+" outPumps: ";
-            for(int i = 0; i < Wiring._numOutPump; i++)
-            {
-                pumps += "["+Wiring._outPumpX[i]+", " + Wiring._outPumpY[i] +"];  ";
-            }
-            Main.NewText(pumps);
 
             if(_chestOutPump.Count > 0)
                 LiquidToChests();
@@ -102,7 +95,6 @@ namespace MagiTronics
                 Wiring._numOutPump = 1;
                 addedPump = true;
             }
-            Main.NewText("there is now "+Wiring._numInPump+" in pumps");
             _chestInPump.Add(new Point16(x, y));
         }
 

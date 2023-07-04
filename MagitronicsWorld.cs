@@ -8,20 +8,18 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Microsoft.Xna.Framework;
 using MagiTronics.Items;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 
 namespace MagiTronics
 {
     internal class MagitronicsWorld : ModSystem
     {
 
-        internal class TileData
-        {
-            public bool Pickor = false;
-        }
-
         public override void LoadWorldData(TagCompound tag)
         {
             modedActuators =  tag.Get<List<Point16>>("modedActuators");
+            texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
         }
 
         public override void SaveWorldData(TagCompound tag)
@@ -30,6 +28,9 @@ namespace MagiTronics
         }
 
         public static List<Point16> modedActuators = new();
+
+        public static Texture2D texture;
+
 
 
         public static bool AddData(Point16 point)

@@ -65,12 +65,5 @@ namespace MagiTronics.Items
 
             return true;
         }
-
-        public void DrawWire(Player player)
-        {
-            //Main.cursor
-            CombatText.NewText(player.getRect(), new Microsoft.Xna.Framework.Color(250, 40, 80), 45);
-            
-        }
     }
 }
