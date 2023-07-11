@@ -18,4 +18,9 @@ Items: {
 		DisplayName: Usage Terminal
 		Tooltip: ""
 	}
+
+	Redirector: {
+		DisplayName: Redirector
+		Tooltip: Redirects mining towards tiles with terminals
+	}
 }
