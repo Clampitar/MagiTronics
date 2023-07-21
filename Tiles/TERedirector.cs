@@ -18,7 +18,6 @@ namespace MagiTronics.Tiles
 
         public bool CanKill()
         {
-            //TODO implement
             workingTE = this;
             wiredTerminals.Clear();
             Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
@@ -53,9 +52,6 @@ namespace MagiTronics.Tiles
         {
             if (Main.netMode == NetmodeID.MultiplayerClient)
             {
-                int width = 2;
-                int height = 2;
-                NetMessage.SendTileSquare(Main.myPlayer, x, y, width, height);
 
                 // Sync the placement of the tile entity with other clients
                 // The "type" parameter refers to the tile type which placed the tile entity, so "Type" (the type of the tile entity) needs to be used here instead
@@ -77,6 +73,8 @@ namespace MagiTronics.Tiles
             }
         }
 
-        
+        public static bool IsResting => workingTE is null;
+
+
     }
 }
