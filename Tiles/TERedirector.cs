@@ -18,10 +18,10 @@ namespace MagiTronics.Tiles
 
         public bool CanKill()
         {
-            workingTE = this;
-            wiredTerminals.Clear();
-            Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
-            workingTE = null;
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                updateTerminals();
+            }
             foreach (Point16 point in wiredTerminals)
             {
                 if(WorldGen.CanKillTile(point.X, point.Y))
@@ -32,6 +32,19 @@ namespace MagiTronics.Tiles
             }
             target = Point16.NegativeOne;
             return false;
+        }
+
+        private void updateTerminals()
+        {
+            workingTE = this;
+            wiredTerminals.Clear();
+            Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
+            workingTE = null;
+        }
+
+        public override void Update()
+        {
+            updateTerminals();
         }
 
 

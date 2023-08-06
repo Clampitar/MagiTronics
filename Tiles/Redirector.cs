@@ -51,7 +51,10 @@ namespace MagiTronics.Tiles
                 return;
             }
             Player player = Main.player[Main.myPlayer];
-            //player.PickTile(ut.target.X, ut.target.Y, player.HeldItem.pick);
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                player.PickTile(ut.target.X, ut.target.Y, player.HeldItem.pick);
+            }
             fail = true;
         }
 
@@ -65,7 +68,20 @@ namespace MagiTronics.Tiles
             ModContent.GetInstance<TERedirector>().Kill(i, j);
         }
 
-        public static TERedirector? FindByGuessing(int x, int y)
+        public static void RedirectMiningTools(int x,int y)
+        {
+            TERedirector mined = FindByGuessing(x, y);
+            if (mined is null)
+                return;
+            Point16 target = mined.target;
+            if(target != Point16.NegativeOne)
+            {
+                x = target.X;
+                y = target.Y;
+            }
+        }
+
+        public static TERedirector FindByGuessing(int x, int y)
         {
             for (int i = 0; i < 2; i++)
             {

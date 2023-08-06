@@ -2,7 +2,6 @@ using MonoMod.Cil;
 using Terraria;
 using Terraria.ModLoader;
 using System;
-using Mono.Cecil.Cil;
 
 namespace MagiTronics
 {
