@@ -26,36 +26,9 @@ namespace MagiTronics.Tiles
             TileObjectData.addTile(Type);
         }
 
-        public override bool CanKillTile(int i, int j, ref bool blockDamaged)
-        {
-            TERedirector ut = FindByGuessing(i, j);
-            return ut?.CanKill() ?? true;
-        }
-
-        public override bool CanPlace(int i, int j)
-        {
-            return base.CanPlace(i, j);
-        }
-
         public override void PlaceInWorld(int i, int j, Item item)
         {
             base.PlaceInWorld(i, j, item);
-        }
-
-        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
-        {
-            fail = false;
-            TERedirector ut = FindByGuessing(i, j);
-            if (ut is null || ut.target == Point16.NegativeOne)
-            {
-                return;
-            }
-            Player player = Main.player[Main.myPlayer];
-            if (Main.netMode == NetmodeID.SinglePlayer)
-            {
-                player.PickTile(ut.target.X, ut.target.Y, player.HeldItem.pick);
-            }
-            fail = true;
         }
 
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
@@ -68,17 +41,19 @@ namespace MagiTronics.Tiles
             ModContent.GetInstance<TERedirector>().Kill(i, j);
         }
 
-        public static void RedirectMiningTools(int x,int y)
+        public static Point16 Redirect(int x,int y)
         {
             TERedirector mined = FindByGuessing(x, y);
             if (mined is null)
-                return;
+                return Point16.Zero;
             Point16 target = mined.target;
             if(target != Point16.NegativeOne)
             {
-                x = target.X;
-                y = target.Y;
+                x = target.X - x;
+                y = target.Y - y;
+                return new Point16(x, y);
             }
+            return Point16.Zero;
         }
 
         public static TERedirector FindByGuessing(int x, int y)

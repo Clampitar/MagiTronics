@@ -14,37 +14,28 @@ namespace MagiTronics.Tiles
 
         public List<Point16> wiredTerminals = new();
 
-        public Point16 target;
+        public Point16 target = Point16.NegativeOne;
 
-        public bool CanKill()
-        {
-            if (Main.netMode == NetmodeID.SinglePlayer)
-            {
-                updateTerminals();
-            }
-            foreach (Point16 point in wiredTerminals)
-            {
-                if(WorldGen.CanKillTile(point.X, point.Y))
-                {
-                    target = point;
-                    return true;
-                }
-            }
-            target = Point16.NegativeOne;
-            return false;
-        }
 
-        private void updateTerminals()
+
+        private void UpdateTarget()
         {
             workingTE = this;
             wiredTerminals.Clear();
             Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
             workingTE = null;
+            if (wiredTerminals.Count > 0)
+            {
+                target = wiredTerminals[0];
+            } else
+            {
+                target = Point16.NegativeOne;
+            }
         }
 
         public override void Update()
         {
-            updateTerminals();
+            UpdateTarget();
         }
 
 
