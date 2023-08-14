@@ -14,9 +14,39 @@ namespace MagiTronics.Tiles
 
         public List<Point16> wiredTerminals = new();
 
-        public Point16 target = Point16.NegativeOne;
-
-
+        public Point16 Target()
+        {
+            Point16 target = Point16.NegativeOne;
+            Item item = Main.LocalPlayer.HeldItem;
+            foreach (Point16 point in wiredTerminals)
+            {
+                Tile tile = Main.tile[point.X, point.Y];
+                ushort type = tile.TileType;
+                if (Main.tileAxe[type])
+                {
+                    if (item.axe > 0)
+                    {
+                        return point;
+                    }
+                } else if (Main.tileHammer[type])
+                {
+                    if (item.hammer > 0) { return point; }
+                }
+                else if (WorldGen.CanKillTile(point.X, point.Y))
+                {
+                    if(item.pick >  0) { return point; }
+                }
+                if(WorldGen.CanPoundTile(point.X, point.Y))
+                {
+                    if(item.axe + item.pick + item.hammer > 0 || item.createTile != -1) { target = point; }
+                }
+                if (tile.HasTile)
+                {
+                    if(item.createTile != -1) { return point; }
+                }
+            }
+            return target;
+        }
 
         private void UpdateTarget()
         {
@@ -24,13 +54,6 @@ namespace MagiTronics.Tiles
             wiredTerminals.Clear();
             Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
             workingTE = null;
-            if (wiredTerminals.Count > 0)
-            {
-                target = wiredTerminals[0];
-            } else
-            {
-                target = Point16.NegativeOne;
-            }
         }
 
         public override void Update()

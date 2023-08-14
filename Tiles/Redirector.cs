@@ -46,7 +46,7 @@ namespace MagiTronics.Tiles
             TERedirector mined = FindByGuessing(x, y);
             if (mined is null)
                 return Point16.Zero;
-            Point16 target = mined.target;
+            Point16 target = mined.Target();
             if(target != Point16.NegativeOne)
             {
                 x = target.X - x;
