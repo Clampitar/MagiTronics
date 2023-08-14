@@ -40,7 +40,7 @@ namespace MagiTronics.Tiles
                 {
                     if(item.axe + item.pick + item.hammer > 0 || item.createTile != -1) { target = point; }
                 }
-                if (tile.HasTile)
+                if (! tile.HasTile)
                 {
                     if(item.createTile != -1) { return point; }
                 }
@@ -52,7 +52,8 @@ namespace MagiTronics.Tiles
         {
             workingTE = this;
             wiredTerminals.Clear();
-            Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
+            //Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
+            TerminalChecker.TripWire(Position.X, Position.Y, 2, 2);
             workingTE = null;
         }
 
