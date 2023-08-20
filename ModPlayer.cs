@@ -1,4 +1,5 @@
 ﻿using MagiTronics.Tiles;
+using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -16,6 +17,8 @@ namespace MagiTronics
                 shift = Redirector.Redirect(Player.tileTargetX, Player.tileTargetY);
                 Player.tileTargetX += shift.X;
                 Player.tileTargetY += shift.Y;
+                Player.tileRangeX += Math.Abs(shift.X);
+                Player.tileRangeY += Math.Abs(shift.Y);
             }
             return true;
         }
@@ -24,6 +27,8 @@ namespace MagiTronics
         {
             Player.tileTargetX -= shift.X;
             Player.tileTargetY -= shift.Y;
+            Player.tileRangeX -= Math.Abs(shift.X);
+            Player.tileRangeY -= Math.Abs(shift.Y);
             shift = Point16.Zero;
         }
     }

@@ -18,6 +18,7 @@ namespace MagiTronics.Tiles
         {
             Point16 target = Point16.NegativeOne;
             Item item = Main.LocalPlayer.HeldItem;
+            if (item.IsAir) return target;
             foreach (Point16 point in wiredTerminals)
             {
                 Tile tile = Main.tile[point.X, point.Y];
@@ -36,13 +37,53 @@ namespace MagiTronics.Tiles
                 {
                     if(item.pick >  0) { return point; }
                 }
-                if(WorldGen.CanPoundTile(point.X, point.Y))
+                else if(WorldGen.CanPoundTile(point.X, point.Y))
                 {
-                    if(item.axe + item.pick + item.hammer > 0 || item.createTile != -1) { target = point; }
+                    if(item.pick > 0 || item.createTile != -1) { target = point; }
                 }
-                if (! tile.HasTile)
+                switch (item.type)
                 {
-                    if(item.createTile != -1) { return point; }
+                    case ItemID.LawnMower:
+                        if (tile.HasUnactuatedTile && (type == TileID.Grass || type == TileID.HallowedGrass))
+                        {
+                            return point;
+                        }
+                        break;
+                    case ItemID.StaffofRegrowth:
+                    case ItemID.AcornAxe:
+                        switch(type)
+                        {
+                            case TileID.ImmatureHerbs:
+                            case TileID.MatureHerbs:
+                            case TileID.BloomingHerbs:
+                            case TileID.Dirt:
+                                return point;
+                        }
+                        if (tile.HasTile) target = point;
+                        break;
+                }
+                if (item.createTile != -1 && !tile.HasTile )
+                {
+                    if (TileID.Sets.Torch[item.createTile])
+                    {
+                        Tile tile2 = Main.tile[point.X - 1, point.Y];
+                        Tile tile3 = Main.tile[point.X + 1, point.Y];
+                        Tile tile4 = Main.tile[point.X, point.Y + 1];
+
+                        if ((!TileID.Sets.AllowLightInWater[Main.LocalPlayer.BiomeTorchHoldStyle(type)] || tile.LiquidType <= 0) &&
+                        (tile.WallType > 0 ||
+                        (tile2.HasTile && (tile2.Slope == SlopeType.Solid || tile2.Slope == SlopeType.SlopeDownRight || tile2.Slope == SlopeType.SlopeUpRight) && ((Main.tileSolid[tile2.TileType] && !Main.tileNoAttach[tile2.TileType] && !Main.tileSolidTop[tile2.TileType] && !TileID.Sets.NotReallySolid[tile2.TileType]) || TileID.Sets.IsBeam[tile2.TileType] || (WorldGen.IsTreeType(tile2.TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y + 1].TileType))))
+                        || (tile3.HasTile && (tile3.Slope == 0 || tile3.Slope == SlopeType.SlopeDownLeft || tile3.Slope == SlopeType.SlopeUpLeft) && ((Main.tileSolid[tile3.TileType] && !Main.tileNoAttach[tile3.TileType] && !Main.tileSolidTop[tile3.TileType] && !TileID.Sets.NotReallySolid[tile3.TileType]) || TileID.Sets.IsBeam[tile3.TileType] || (WorldGen.IsTreeType(tile3.TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y + 1].TileType))))
+                        || (tile4.HasTile && Main.tileSolid[tile4.TileType] && !Main.tileNoAttach[tile4.TileType] && (!Main.tileSolidTop[tile4.TileType] || (TileID.Sets.Platforms[tile4.TileType] && tile4.Slope == 0)) && !TileID.Sets.NotReallySolid[tile4.TileType] && !tile4.IsHalfBlock && tile4.Slope == 0))
+                        && !TileID.Sets.Torch[tile.TileType])
+                        {
+                            Main.NewText("torch spot: "+point);
+                            return point;
+                        }
+                    } else
+                    {
+                        return point;
+                    }
                 }
             }
             return target;
