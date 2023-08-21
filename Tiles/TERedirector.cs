@@ -33,13 +33,13 @@ namespace MagiTronics.Tiles
                 {
                     if (item.hammer > 0) { return point; }
                 }
-                else if (WorldGen.CanKillTile(point.X, point.Y))
+                else if (WorldGen.CanKillTile(point.X, point.Y) && item.pick > 0)
                 {
-                    if(item.pick >  0) { return point; }
+                    return point;
                 }
-                else if(WorldGen.CanPoundTile(point.X, point.Y))
+                else if(item.hammer > 0 && tile.WallType > 0)
                 {
-                    if(item.pick > 0 || item.createTile != -1) { target = point; }
+                    return point;
                 }
                 switch (item.type)
                 {
@@ -61,6 +61,32 @@ namespace MagiTronics.Tiles
                         }
                         if (tile.HasTile) target = point;
                         break;
+                }
+                if(item.createWall > -1)
+                {
+                    if(WallLoader.CanPlace(point.X, point.Y, item.createWall) && Main.tile[point.X, point.Y].WallType != item.createWall)
+                    {
+                        if (Main.tile[point.X+1, point.Y].HasTile || Main.tile[point.X+1, point.Y].WallType > 0
+                            || Main.tile[point.X, point.Y + 1].HasTile || Main.tile[point.X, point.Y + 1].WallType > 0
+                            || Main.tile[point.X - 1, point.Y].HasTile || Main.tile[point.X - 1, point.Y].WallType > 0
+                            || Main.tile[point.X, point.Y - 1].HasTile || Main.tile[point.X, point.Y - 1].WallType > 0)
+                        {
+                            if (Main.tile[point.X, point.Y].WallType > 0)
+                            {
+                                if (Main.LocalPlayer.TileReplacementEnabled
+                                    && WorldGen.NearFriendlyWall(point.X, point.Y)
+                                    && !(Main.wallDungeon[Main.tile[point.X, point.Y].WallType] && !NPC.downedBoss3)
+                                    && !(Main.tile[point.X, point.Y].WallType == WallID.LihzahrdBrickUnsafe && !NPC.downedGolemBoss))
+                                {
+                                    return point;
+                                }
+                            }
+                            else
+                            {
+                                return point;
+                            }
+                        }
+                    }
                 }
                 if (item.createTile != -1 && !tile.HasTile )
                 {
