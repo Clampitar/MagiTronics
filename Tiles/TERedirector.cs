@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.Tile_Entities;
@@ -53,7 +54,6 @@ namespace MagiTronics.Tiles
                     case ItemID.AcornAxe:
                         switch(type)
                         {
-                            case TileID.ImmatureHerbs:
                             case TileID.MatureHerbs:
                             case TileID.BloomingHerbs:
                             case TileID.Dirt:
@@ -88,19 +88,24 @@ namespace MagiTronics.Tiles
                         }
                     }
                 }
-                if (item.createTile != -1 && !tile.HasTile )
+                int createTile = item.createTile;
+                if(item.tileWand > -1)
+                    createTile = item.tileWand;
+                if (createTile != -1 && !tile.HasTile )
                 {
-                    if (TileID.Sets.Torch[item.createTile])
+                    Tile tileLeft = Main.tile[point.X - 1, point.Y];
+                    Tile tileRight = Main.tile[point.X + 1, point.Y];
+                    Tile tileDown = Main.tile[point.X, point.Y + 1];
+                    Tile tileUp = Main.tile[point.X, point.Y - 1];
+                    if (TileID.Sets.Torch[createTile] || createTile == TileID.Switches)
                     {
-                        Tile tile2 = Main.tile[point.X - 1, point.Y];
-                        Tile tile3 = Main.tile[point.X + 1, point.Y];
-                        Tile tile4 = Main.tile[point.X, point.Y + 1];
+                        
 
                         if ((!TileID.Sets.AllowLightInWater[Main.LocalPlayer.BiomeTorchHoldStyle(type)] || tile.LiquidType <= 0) &&
                         (tile.WallType > 0 ||
-                        (tile2.HasTile && (tile2.Slope == SlopeType.Solid || tile2.Slope == SlopeType.SlopeDownRight || tile2.Slope == SlopeType.SlopeUpRight) && ((Main.tileSolid[tile2.TileType] && !Main.tileNoAttach[tile2.TileType] && !Main.tileSolidTop[tile2.TileType] && !TileID.Sets.NotReallySolid[tile2.TileType]) || TileID.Sets.IsBeam[tile2.TileType] || (WorldGen.IsTreeType(tile2.TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y + 1].TileType))))
-                        || (tile3.HasTile && (tile3.Slope == 0 || tile3.Slope == SlopeType.SlopeDownLeft || tile3.Slope == SlopeType.SlopeUpLeft) && ((Main.tileSolid[tile3.TileType] && !Main.tileNoAttach[tile3.TileType] && !Main.tileSolidTop[tile3.TileType] && !TileID.Sets.NotReallySolid[tile3.TileType]) || TileID.Sets.IsBeam[tile3.TileType] || (WorldGen.IsTreeType(tile3.TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y + 1].TileType))))
-                        || (tile4.HasTile && Main.tileSolid[tile4.TileType] && !Main.tileNoAttach[tile4.TileType] && (!Main.tileSolidTop[tile4.TileType] || (TileID.Sets.Platforms[tile4.TileType] && tile4.Slope == 0)) && !TileID.Sets.NotReallySolid[tile4.TileType] && !tile4.IsHalfBlock && tile4.Slope == 0))
+                        (tileLeft.HasTile && (tileLeft.Slope == SlopeType.Solid || tileLeft.Slope == SlopeType.SlopeDownRight || tileLeft.Slope == SlopeType.SlopeUpRight) && ((Main.tileSolid[tileLeft.TileType] && !Main.tileNoAttach[tileLeft.TileType] && !Main.tileSolidTop[tileLeft.TileType] && !TileID.Sets.NotReallySolid[tileLeft.TileType]) || TileID.Sets.IsBeam[tileLeft.TileType] || (WorldGen.IsTreeType(tileLeft.TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y + 1].TileType))))
+                        || (tileRight.HasTile && (tileRight.Slope == 0 || tileRight.Slope == SlopeType.SlopeDownLeft || tileRight.Slope == SlopeType.SlopeUpLeft) && ((Main.tileSolid[tileRight.TileType] && !Main.tileNoAttach[tileRight.TileType] && !Main.tileSolidTop[tileRight.TileType] && !TileID.Sets.NotReallySolid[tileRight.TileType]) || TileID.Sets.IsBeam[tileRight.TileType] || (WorldGen.IsTreeType(tileRight.TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y + 1].TileType))))
+                        || (tileDown.HasTile && Main.tileSolid[tileDown.TileType] && !Main.tileNoAttach[tileDown.TileType] && (!Main.tileSolidTop[tileDown.TileType] || (TileID.Sets.Platforms[tileDown.TileType] && tileDown.Slope == 0)) && !TileID.Sets.NotReallySolid[tileDown.TileType] && !tileDown.IsHalfBlock && tileDown.Slope == 0))
                         && !TileID.Sets.Torch[tile.TileType])
                         {
                             Main.NewText("torch spot: "+point);
@@ -108,7 +113,88 @@ namespace MagiTronics.Tiles
                         }
                     } else
                     {
-                        return point;
+                        switch (createTile)
+                        {
+                            case TileID.Grass:
+                            case TileID.HallowedGrass:
+                                if(type == TileID.Dirt)
+                                    return point; break;
+                            case TileID.CorruptGrass:
+                            case TileID.CrimsonGrass:
+                                if(type == TileID.Grass || type == TileID.Mud)
+                                    return point;
+                                break;
+                            case TileID.JungleGrass:
+                            case TileID.MushroomGrass:
+                            case TileID.CorruptJungleGrass:
+                            case TileID.CrimsonJungleGrass:
+                                if(type == TileID.Mud)
+                                    return point;
+                                break;
+                            case TileID.WaterDrip:
+                            case TileID.LavaDrip:
+                            case TileID.HoneyDrip:
+                            case TileID.SandDrip:
+                                if (tileUp.HasUnactuatedTile && !Main.tileSolidTop[tileUp.TileType])
+                                    return point;
+                                break;
+                            case TileID.SkullLanterns:
+                            case TileID.ClayPot:
+                            case TileID.Candelabras:
+                            case TileID.PlatinumCandelabra:
+                            case TileID.PlatinumCandle:
+                            case TileID.BeachPiles:
+                                if(tileDown.HasUnactuatedTile && (Main.tileSolid[tileDown.TileType] || Main.tileTable[tileDown.TileType]))
+                                    return point;
+                                break;
+                            case TileID.LogicGateLamp:
+                                if(tileDown.HasTile && (tileDown.TileType == TileID.LogicGateLamp || (item.placeStyle != 2 && tileDown.TileType == TileID.LogicGate)))
+                                    return point;
+                                break;
+                            case TileID.Bottles:
+                            case TileID.PiggyBank:
+                            case TileID.Candles:
+                            case TileID.WaterCandle:
+                            case TileID.Books:
+                            case TileID.Bowls:
+                                if(tileDown.HasUnactuatedTile && Main.tileTable[tileDown.TileType])
+                                    return point;
+                                break;
+                            case TileID.Cobweb:
+                            case TileID.CopperCoinPile:
+                            case TileID.SilverCoinPile:
+                            case TileID.GoldCoinPile:
+                            case TileID.PlatinumCoinPile:
+                            case TileID.LivingFire:
+                            case TileID.LivingCursedFire:
+                            case TileID.LivingDemonFire:
+                            case TileID.LivingFrostFire:
+                            case TileID.LivingIchor:
+                            case TileID.LivingUltrabrightFire:
+                            case TileID.Bubble:
+                            case TileID.ChimneySmoke:
+                                if (tileLeft.HasTile || tileLeft.WallType > 0
+                                    || tileRight.HasTile || tileRight.WallType > 0
+                                    || tileUp.HasTile || tileUp.WallType > 0
+                                    || tileDown.HasTile || tileDown.WallType > 0)
+                                    return point;
+                                break;
+                            case TileID.MinecartTrack:
+                                for (int i = point.X - 1; i <= point.X + 1; i++)
+                                    for (int j = point.Y - 1; j <= point.Y + 1; j++)
+                                        if (Main.tile[i, j].HasTile || Main.tile[i, j].WallType > 0)
+                                            return point;
+                                break;
+                            default:
+                                if (tile.WallType > 0)
+                                    return point;
+                                if (tileRight.HasTile && (Main.tileSolid[tileRight.TileType] || TileID.Sets.IsBeam[tileRight.TileType] || Main.tileRope[tileRight.TileType]) || tileRight.WallType > 0
+                                    || tileLeft.HasTile && (Main.tileSolid[tileLeft.TileType] || TileID.Sets.IsBeam[tileLeft.TileType] || Main.tileRope[tileLeft.TileType]) || tileLeft.WallType > 0
+                                    || tileUp.HasTile && (Main.tileSolid[tileUp.TileType] || TileID.Sets.IsBeam[tileUp.TileType] || Main.tileRope[tileUp.TileType]) || tileUp.WallType > 0
+                                    || tileDown.HasTile && (Main.tileSolid[tileDown.TileType] || TileID.Sets.IsBeam[tileDown.TileType] || Main.tileRope[tileDown.TileType]) || tileDown.WallType > 0)
+                                    return point;
+                                break;
+                        }
                     }
                 }
             }
