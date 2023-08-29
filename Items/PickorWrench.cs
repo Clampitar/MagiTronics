@@ -30,11 +30,6 @@ namespace MagiTronics.Items
             Item.tileBoost = 20;
         }
 
-        public override void OnConsumeAmmo(Item ammo, Player player)
-        {
-            base.OnConsumeAmmo(ammo, player);
-        }
-
         public override bool CanUseItem(Player player)
         {
             if(player.noBuilding)

@@ -8,14 +8,11 @@ namespace MagiTronics
 {
     internal class TerminalChecker
     {
+        //slightly modified from Vanilla Wiring
         private static Dictionary<Point16, bool> _wireSkip;
         public static void TripWire(int left, int top, int width, int height)
         {
             _wireSkip = new Dictionary<Point16, bool>();
-            if (Main.netMode == 1)
-            {
-                return;
-            }
             Wiring.running = true;
             if (Wiring._wireList.Count != 0)
             {

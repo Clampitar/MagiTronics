@@ -17,6 +17,7 @@ namespace MagiTronics.Tiles
 
         public Point16 Target()
         {
+            UpdateTarget();
             Point16 target = Point16.NegativeOne;
             Item item = Main.LocalPlayer.HeldItem;
             if (item.IsAir) return target;
@@ -91,7 +92,40 @@ namespace MagiTronics.Tiles
                 int createTile = item.createTile;
                 if(item.tileWand > -1)
                     createTile = item.tileWand;
-                if (createTile != -1 && !tile.HasTile )
+                if(createTile > -1 && tile.HasTile)
+                {
+                    if (Main.tileMoss[createTile])
+                    {
+                        if (type == TileID.Stone || type == TileID.GrayBrick)
+                        {
+                            return point;
+                        }
+                        else continue;
+                    }
+                    switch(createTile)
+                    {
+
+                        case TileID.Grass:
+                        case TileID.HallowedGrass:
+                            if (type == TileID.Dirt)
+                                return point; break;
+                        case TileID.CorruptGrass:
+                        case TileID.CrimsonGrass:
+                            if (type == TileID.Grass || type == TileID.Mud)
+                                return point;
+                            break;
+                        case TileID.JungleGrass:
+                        case TileID.MushroomGrass:
+                        case TileID.CorruptJungleGrass:
+                        case TileID.CrimsonJungleGrass:
+                            if (type == TileID.Mud)
+                                return point;
+                            break;
+                    }
+                }
+                if (createTile > -1 && !tile.HasTile
+                    || Main.tileCut[type]
+                    || TileID.Sets.BreakableWhenPlacing[type])
                 {
                     Tile tileLeft = Main.tile[point.X - 1, point.Y];
                     Tile tileRight = Main.tile[point.X + 1, point.Y];
@@ -111,90 +145,85 @@ namespace MagiTronics.Tiles
                             Main.NewText("torch spot: "+point);
                             return point;
                         }
-                    } else
+                    } else if (TileID.Sets.Platforms[createTile])
                     {
-                        switch (createTile)
-                        {
-                            case TileID.Grass:
-                            case TileID.HallowedGrass:
-                                if(type == TileID.Dirt)
-                                    return point; break;
-                            case TileID.CorruptGrass:
-                            case TileID.CrimsonGrass:
-                                if(type == TileID.Grass || type == TileID.Mud)
+                        for(int i = point.X -1; i <= point.X + 1; i++)
+                            for(int j = point.Y -1; j <= point.Y + 1; j++)
+                            {
+                                if (Main.tile[i, j].HasTile)
                                     return point;
-                                break;
-                            case TileID.JungleGrass:
-                            case TileID.MushroomGrass:
-                            case TileID.CorruptJungleGrass:
-                            case TileID.CrimsonJungleGrass:
-                                if(type == TileID.Mud)
-                                    return point;
-                                break;
-                            case TileID.WaterDrip:
-                            case TileID.LavaDrip:
-                            case TileID.HoneyDrip:
-                            case TileID.SandDrip:
-                                if (tileUp.HasUnactuatedTile && !Main.tileSolidTop[tileUp.TileType])
-                                    return point;
-                                break;
-                            case TileID.SkullLanterns:
-                            case TileID.ClayPot:
-                            case TileID.Candelabras:
-                            case TileID.PlatinumCandelabra:
-                            case TileID.PlatinumCandle:
-                            case TileID.BeachPiles:
-                                if(tileDown.HasUnactuatedTile && (Main.tileSolid[tileDown.TileType] || Main.tileTable[tileDown.TileType]))
-                                    return point;
-                                break;
-                            case TileID.LogicGateLamp:
-                                if(tileDown.HasTile && (tileDown.TileType == TileID.LogicGateLamp || (item.placeStyle != 2 && tileDown.TileType == TileID.LogicGate)))
-                                    return point;
-                                break;
-                            case TileID.Bottles:
-                            case TileID.PiggyBank:
-                            case TileID.Candles:
-                            case TileID.WaterCandle:
-                            case TileID.Books:
-                            case TileID.Bowls:
-                                if(tileDown.HasUnactuatedTile && Main.tileTable[tileDown.TileType])
-                                    return point;
-                                break;
-                            case TileID.Cobweb:
-                            case TileID.CopperCoinPile:
-                            case TileID.SilverCoinPile:
-                            case TileID.GoldCoinPile:
-                            case TileID.PlatinumCoinPile:
-                            case TileID.LivingFire:
-                            case TileID.LivingCursedFire:
-                            case TileID.LivingDemonFire:
-                            case TileID.LivingFrostFire:
-                            case TileID.LivingIchor:
-                            case TileID.LivingUltrabrightFire:
-                            case TileID.Bubble:
-                            case TileID.ChimneySmoke:
-                                if (tileLeft.HasTile || tileLeft.WallType > 0
-                                    || tileRight.HasTile || tileRight.WallType > 0
-                                    || tileUp.HasTile || tileUp.WallType > 0
-                                    || tileDown.HasTile || tileDown.WallType > 0)
-                                    return point;
-                                break;
-                            case TileID.MinecartTrack:
-                                for (int i = point.X - 1; i <= point.X + 1; i++)
-                                    for (int j = point.Y - 1; j <= point.Y + 1; j++)
-                                        if (Main.tile[i, j].HasTile || Main.tile[i, j].WallType > 0)
-                                            return point;
-                                break;
-                            default:
-                                if (tile.WallType > 0)
-                                    return point;
-                                if (tileRight.HasTile && (Main.tileSolid[tileRight.TileType] || TileID.Sets.IsBeam[tileRight.TileType] || Main.tileRope[tileRight.TileType]) || tileRight.WallType > 0
-                                    || tileLeft.HasTile && (Main.tileSolid[tileLeft.TileType] || TileID.Sets.IsBeam[tileLeft.TileType] || Main.tileRope[tileLeft.TileType]) || tileLeft.WallType > 0
-                                    || tileUp.HasTile && (Main.tileSolid[tileUp.TileType] || TileID.Sets.IsBeam[tileUp.TileType] || Main.tileRope[tileUp.TileType]) || tileUp.WallType > 0
-                                    || tileDown.HasTile && (Main.tileSolid[tileDown.TileType] || TileID.Sets.IsBeam[tileDown.TileType] || Main.tileRope[tileDown.TileType]) || tileDown.WallType > 0)
-                                    return point;
-                                break;
-                        }
+                            }
+                    }
+                    switch (createTile)
+                    {
+                        case TileID.Plants:
+                            if (WorldGen.IsFitToPlaceFlowerIn(point.X, point.Y, TileID.Plants))
+                                return point;
+                            break;
+                        case TileID.WaterDrip:
+                        case TileID.LavaDrip:
+                        case TileID.HoneyDrip:
+                        case TileID.SandDrip:
+                            if (tileUp.HasUnactuatedTile && !Main.tileSolidTop[tileUp.TileType])
+                                return point;
+                            break;
+                        case TileID.SkullLanterns:
+                        case TileID.ClayPot:
+                        case TileID.Candelabras:
+                        case TileID.PlatinumCandelabra:
+                        case TileID.PlatinumCandle:
+                        case TileID.BeachPiles:
+                            if(tileDown.HasUnactuatedTile && (Main.tileSolid[tileDown.TileType] || Main.tileTable[tileDown.TileType]))
+                                return point;
+                            break;
+                        case TileID.LogicGateLamp:
+                            if(tileDown.HasTile && (tileDown.TileType == TileID.LogicGateLamp || (item.placeStyle != 2 && tileDown.TileType == TileID.LogicGate)))
+                                return point;
+                            break;
+                        case TileID.Bottles:
+                        case TileID.PiggyBank:
+                        case TileID.Candles:
+                        case TileID.WaterCandle:
+                        case TileID.Books:
+                        case TileID.Bowls:
+                            if(tileDown.HasUnactuatedTile && Main.tileTable[tileDown.TileType])
+                                return point;
+                            break;
+                        case TileID.Cobweb:
+                        case TileID.CopperCoinPile:
+                        case TileID.SilverCoinPile:
+                        case TileID.GoldCoinPile:
+                        case TileID.PlatinumCoinPile:
+                        case TileID.LivingFire:
+                        case TileID.LivingCursedFire:
+                        case TileID.LivingDemonFire:
+                        case TileID.LivingFrostFire:
+                        case TileID.LivingIchor:
+                        case TileID.LivingUltrabrightFire:
+                        case TileID.Bubble:
+                        case TileID.ChimneySmoke:
+                            if (tileLeft.HasTile || tileLeft.WallType > 0
+                                || tileRight.HasTile || tileRight.WallType > 0
+                                || tileUp.HasTile || tileUp.WallType > 0
+                                || tileDown.HasTile || tileDown.WallType > 0)
+                                return point;
+                            break;
+                        case TileID.MinecartTrack:
+                            for (int i = point.X - 1; i <= point.X + 1; i++)
+                                for (int j = point.Y - 1; j <= point.Y + 1; j++)
+                                    if (Main.tile[i, j].HasTile || Main.tile[i, j].WallType > 0)
+                                        return point;
+                            break;
+                        default:
+                            if (tile.WallType > 0)
+                                return point;
+                            if (tileRight.HasTile && (Main.tileSolid[tileRight.TileType] || TileID.Sets.IsBeam[tileRight.TileType] || Main.tileRope[tileRight.TileType]) || tileRight.WallType > 0
+                                || tileLeft.HasTile && (Main.tileSolid[tileLeft.TileType] || TileID.Sets.IsBeam[tileLeft.TileType] || Main.tileRope[tileLeft.TileType]) || tileLeft.WallType > 0
+                                || tileUp.HasTile && (Main.tileSolid[tileUp.TileType] || TileID.Sets.IsBeam[tileUp.TileType] || Main.tileRope[tileUp.TileType]) || tileUp.WallType > 0
+                                || tileDown.HasTile && (Main.tileSolid[tileDown.TileType] || TileID.Sets.IsBeam[tileDown.TileType] || Main.tileRope[tileDown.TileType]) || tileDown.WallType > 0)
+                                return point;
+                            break;
+                    
                     }
                 }
             }
@@ -205,16 +234,9 @@ namespace MagiTronics.Tiles
         {
             workingTE = this;
             wiredTerminals.Clear();
-            //Wiring.TripWire(this.Position.X, Position.Y, 2, 2);
             TerminalChecker.TripWire(Position.X, Position.Y, 2, 2);
             workingTE = null;
         }
-
-        public override void Update()
-        {
-            UpdateTarget();
-        }
-
 
         public static void registerTerminal(Point16 p)
         {
