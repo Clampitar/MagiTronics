@@ -1,6 +1,8 @@
-Introduces two new pumps that interact with chests, allowing you to pump water directly in and out of chests.
+Introduces two sets of items
 
-Step 1. Fill a chest with buckets or sponges
-Step 2. Connect modded pump and chest with wiring
+-two pumps that interact with chests, allowing you to pump water directly in and out of chests.
 
-And finally, activate the the mechanism and voila!
+	Step 1. Fill a chest with buckets or sponges
+	Step 2. Connect modded pump and chest with wiring
+
+-The Redirector and terminal, wich redirects most items. If you use an item on a redirector that is attached to a terminal, the item's usage will be redirected to the terminal
