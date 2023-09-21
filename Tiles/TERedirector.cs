@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.GameContent.Tile_Entities;
+using Terraria.Enums;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ObjectData;
 
 namespace MagiTronics.Tiles
 {
@@ -25,6 +25,11 @@ namespace MagiTronics.Tiles
             {
                 Tile tile = Main.tile[point.X, point.Y];
                 ushort type = tile.TileType;
+                Tile tileLeft = Main.tile[point.X - 1, point.Y];
+                Tile tileRight = Main.tile[point.X + 1, point.Y];
+                Tile tileDown = Main.tile[point.X, point.Y + 1];
+                Tile tileUp = Main.tile[point.X, point.Y - 1];
+
                 if (Main.tileAxe[type])
                 {
                     if (item.axe > 0)
@@ -92,7 +97,8 @@ namespace MagiTronics.Tiles
                 int createTile = item.createTile;
                 if(item.tileWand > -1)
                     createTile = item.tileWand;
-                if(createTile > -1 && tile.HasTile)
+                if(createTile > -1 && tile.HasTile && !Main.tileCut[type]
+                    && !TileID.Sets.BreakableWhenPlacing[type])
                 {
                     if (Main.tileMoss[createTile])
                     {
@@ -121,16 +127,98 @@ namespace MagiTronics.Tiles
                             if (type == TileID.Mud)
                                 return point;
                             break;
+                        default:
+                            if(Main.LocalPlayer.TileReplacementEnabled)
+                            {
+                                Item bestPickaxe = Main.LocalPlayer.GetBestPickaxe();
+                                if (bestPickaxe != null
+                                    && !WorldGen.WouldTileReplacementBeBlockedByLiquid(point.X, point.Y, LiquidID.Lava)
+                                    && ItemID.Sets.SortingPriorityRopes[item.type] == -1
+                                    && !Main.tileMoss[createTile]
+                                    && !TileID.Sets.DoesntPlaceWithTileReplacement[createTile]
+                                    && !TileID.Sets.DoesntGetReplacedWithTileReplacement[type]
+                                    && !(TileID.Sets.Falling[createTile]
+                                        && !TileID.Sets.Falling[type]
+                                        && bestPickaxe.pick < 110 
+                                        && tileUp.HasTile
+                                        && TileID.Sets.Falling[tileUp.TileType])
+                                    && !(type == TileID.CrispyHoneyBlock && Main.getGoodWorld)
+                                    && WorldGen.WouldTileReplacementWork((ushort)createTile, point.X, point.Y)
+                                    && WorldGen.IsTileReplacable(point.X, point.Y)
+                                    && TileLoader.CanReplace(point.X, point.Y, type, createTile)
+                                    && TileLoader.CanPlace(point.X, point.Y, createTile)
+                                    )
+                                {
+                                    if (createTile == type)
+                                    {
+                                        int style = item.placeStyle;
+                                        int framey = tile.TileFrameY;
+                                        if ((TileID.Sets.Platforms[type] && framey != style * 18)
+                                            || (TileID.Sets.Torch[type] && TileID.Sets.Torch[createTile] && framey != style * 22)
+                                            || (TileID.Sets.Campfire[type] && TileID.Sets.Campfire[createTile] && framey != style * 54)
+                                            || (TileID.Sets.BasicChest[type] && TileID.Sets.BasicChest[createTile] && framey != style * 36)
+                                            || (TileID.Sets.BasicDresser[type] && TileID.Sets.BasicDresser[createTile] && framey != style * 54)
+                                            )
+                                        {
+                                            return point;
+                                        }
+                                    }
+                                    else return point;
+                                }
+                            }
+                        break;
                     }
                 }
-                if (createTile > -1 && !tile.HasTile
-                    || Main.tileCut[type]
-                    || TileID.Sets.BreakableWhenPlacing[type])
+                if (createTile > -1 && 
+                    (!tile.HasTile || Main.tileCut[type]
+                    || TileID.Sets.BreakableWhenPlacing[type]))
                 {
-                    Tile tileLeft = Main.tile[point.X - 1, point.Y];
-                    Tile tileRight = Main.tile[point.X + 1, point.Y];
-                    Tile tileDown = Main.tile[point.X, point.Y + 1];
-                    Tile tileUp = Main.tile[point.X, point.Y - 1];
+                    
+
+                    if(TileObjectData.CustomPlace(createTile, item.placeStyle))
+                    {
+                        if(TileObject.CanPlace(point.X, point.Y, createTile, item.placeStyle, Main.LocalPlayer.direction, out TileObject tileObject))
+                        {
+
+                            bool canPlace = true;
+                            switch (createTile)
+                            {
+                                case TileID.Pigronata:
+                                    for (int i = -2; i < 2; i++)
+                                    {
+                                        Tile pigTile = Main.tile[Player.tileTargetX + i, Player.tileTargetY];
+                                        if (tile.HasTile && tile.TileType == 454)
+                                        {
+                                            canPlace = false;
+                                        }
+                                    }
+                                    break;
+                                case TileID.Pumpkins:
+                                    for (int i = -1; i < 1; i++)
+                                    {
+                                        for (int j = 0; j < 2; j++)
+                                        {
+                                            if (!WorldGen.CanCutTile(Player.tileTargetX + j, Player.tileTargetY + i, TileCuttingContext.TilePlacement))
+                                            {
+                                                canPlace = false;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case TileID.Coral:
+                                case TileID.BeachPiles:
+                                    if (tile.HasTile && (Main.tileCut[type] || TileID.Sets.BreakableWhenPlacing[type] || (type >= 373 && type <= 375) || type == 461))
+                                    {
+                                        canPlace = false;
+                                    }
+                                    break;
+
+                            }
+                            if (canPlace) return point;
+                        }
+                        continue;
+                    }
+
                     if (TileID.Sets.Torch[createTile] || createTile == TileID.Switches)
                     {
                         
