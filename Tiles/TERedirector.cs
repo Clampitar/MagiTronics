@@ -127,6 +127,10 @@ namespace MagiTronics.Tiles
                             if (type == TileID.Mud)
                                 return point;
                             break;
+                        case TileID.AshGrass:
+                            if(type == TileID.Ash)
+                                return point;
+                            break;
                         default:
                             if(Main.LocalPlayer.TileReplacementEnabled)
                             {
@@ -137,9 +141,9 @@ namespace MagiTronics.Tiles
                                     && !Main.tileMoss[createTile]
                                     && !TileID.Sets.DoesntPlaceWithTileReplacement[createTile]
                                     && !TileID.Sets.DoesntGetReplacedWithTileReplacement[type]
-                                    && !(TileID.Sets.Falling[createTile]
-                                        && !TileID.Sets.Falling[type]
-                                        && bestPickaxe.pick < 110 
+                                    && !(!TileID.Sets.Falling[createTile]
+                                        && (TileID.Sets.Falling[type])
+                                        && (bestPickaxe.pick < 110) 
                                         && tileUp.HasTile
                                         && TileID.Sets.Falling[tileUp.TileType])
                                     && !(type == TileID.CrispyHoneyBlock && Main.getGoodWorld)
@@ -147,21 +151,29 @@ namespace MagiTronics.Tiles
                                     && WorldGen.IsTileReplacable(point.X, point.Y)
                                     && TileLoader.CanReplace(point.X, point.Y, type, createTile)
                                     && TileLoader.CanPlace(point.X, point.Y, createTile)
+                                    && !(createTile == TileID.Dirt
+                                            && TileID.Sets.Grass[type]
+                                            && type != TileID.AshGrass)
+                                    && !(createTile == TileID.Mud
+                                            && TileID.Sets.GrassSpecial[type])
+                                    && !(createTile == TileID.Ash
+                                            && type == TileID.AshGrass)
                                     )
                                 {
                                     if (createTile == type)
                                     {
                                         int style = item.placeStyle;
-                                        int framey = tile.TileFrameY;
-                                        if ((TileID.Sets.Platforms[type] && framey != style * 18)
-                                            || (TileID.Sets.Torch[type] && TileID.Sets.Torch[createTile] && framey != style * 22)
-                                            || (TileID.Sets.Campfire[type] && TileID.Sets.Campfire[createTile] && framey != style * 54)
-                                            || (TileID.Sets.BasicChest[type] && TileID.Sets.BasicChest[createTile] && framey != style * 36)
-                                            || (TileID.Sets.BasicDresser[type] && TileID.Sets.BasicDresser[createTile] && framey != style * 54)
+
+                                        if ((TileID.Sets.Platforms[type] && tile.TileFrameY != style * 18)
+                                            || (TileID.Sets.Torch[type] && tile.TileFrameY != style * 22)
+                                            || (TileID.Sets.Campfire[type] && tile.TileFrameX / 54 != style)
+                                            || (TileID.Sets.BasicChest[type] && tile.TileFrameX / 36 != style)
+                                            || (TileID.Sets.BasicDresser[type] && tile.TileFrameX / 54 != style)
                                             )
                                         {
                                             return point;
                                         }
+                                        else continue;
                                     }
                                     else return point;
                                 }
@@ -221,7 +233,7 @@ namespace MagiTronics.Tiles
 
                     if (TileID.Sets.Torch[createTile] || createTile == TileID.Switches)
                     {
-                        
+
 
                         if ((!TileID.Sets.AllowLightInWater[Main.LocalPlayer.BiomeTorchHoldStyle(type)] || tile.LiquidType <= 0) &&
                         (tile.WallType > 0 ||
@@ -230,9 +242,9 @@ namespace MagiTronics.Tiles
                         || (tileDown.HasTile && Main.tileSolid[tileDown.TileType] && !Main.tileNoAttach[tileDown.TileType] && (!Main.tileSolidTop[tileDown.TileType] || (TileID.Sets.Platforms[tileDown.TileType] && tileDown.Slope == 0)) && !TileID.Sets.NotReallySolid[tileDown.TileType] && !tileDown.IsHalfBlock && tileDown.Slope == 0))
                         && !TileID.Sets.Torch[tile.TileType])
                         {
-                            Main.NewText("torch spot: "+point);
                             return point;
                         }
+                        else continue;
                     } else if (TileID.Sets.Platforms[createTile])
                     {
                         for(int i = point.X -1; i <= point.X + 1; i++)
@@ -241,6 +253,11 @@ namespace MagiTronics.Tiles
                                 if (Main.tile[i, j].HasTile)
                                     return point;
                             }
+                    }
+                    else if (TileID.Sets.Grass[createTile]
+                         || TileID.Sets.GrassSpecial[createTile])
+                    {
+                        continue;
                     }
                     switch (createTile)
                     {
