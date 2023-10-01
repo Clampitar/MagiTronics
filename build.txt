@@ -1,3 +1,4 @@
 displayName = MagiTronics
 author = Clampitar
-version = 0.3.0
+version = 0.3.1
+homepage = https://forums.terraria.org/index.php?threads/magitronics.127433/
