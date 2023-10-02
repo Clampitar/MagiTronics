@@ -23,4 +23,9 @@ Items: {
 		DisplayName: Redirector
 		Tooltip: Redirects item usage towards tiles with terminals
 	}
+
+	LogicBuffer: {
+		DisplayName: Logic Buffer
+		Tooltip: ""
+	}
 }

@@ -1,4 +1,5 @@
 ﻿using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -10,9 +11,7 @@ namespace MagiTronics.Items
         public override void SetDefaults()
         {
             Item.maxStack = 9999;
-            Item.ammo = Item.type;
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.useAmmo = Item.type;
             Item.useTime = 5;
             Item.mech = true;
             Item.useAnimation = 15;
@@ -31,6 +30,8 @@ namespace MagiTronics.Items
             return true;
         }
 
+         
+
         public override bool? UseItem(Player player)
         {
             int ammoIndex = -1;
@@ -43,7 +44,8 @@ namespace MagiTronics.Items
                 }
 
             }
-            if (ammoIndex > 0 && (Main.mouseLeft || !Main.mouseLeftRelease))
+            bool holdingTerminal = (player.HeldItem.type == ModContent.ItemType<UsageTerminal>());
+            if ((ammoIndex > 0 || holdingTerminal) && (Main.mouseLeft || !Main.mouseLeftRelease))
             {
                 int x = Player.tileTargetX;
                 int y = Player.tileTargetY;
