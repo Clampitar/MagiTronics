@@ -5,12 +5,15 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
+using Terraria.ModLoader;
+using MagiTronics.Tiles;
+using System;
 
 namespace MagiTronics
 {
     public class MagicWiring
     {
-        
+
         public static List<Point16> _chestOutPump = new List<Point16>();
         //public static int _numChestOutPump;
 
@@ -21,6 +24,58 @@ namespace MagiTronics
 
         private static ChestManager chestManager = new ChestManager();
 
+        private static Random rand = new Random();
+
+        public static bool shouldKillLamp(int x, int y)
+        {
+            Tile tile = Main.tile[x, y+1];
+            int type = tile.TileType;
+            if(type == ModContent.TileType<Tiles.LogicBuffer>())
+                return false;
+            return true;
+        }
+
+        public static bool satisfiesGate(int x, int y, int gateType)
+        {
+            Tile tile = Main.tile[x, y];
+            if(!tile.HasTile ||  tile.TileType != TileID.LogicGateLamp)
+                return false;
+            int numLamps = 0;
+            int numActiveLamps = 0;
+            for (int i = y; i > Main.miniMapY; i--)
+            {
+                tile = Main.tile[x, i];
+                if (!tile.HasTile || tile.TileType != 419)
+                {
+                    break;
+                }
+                numLamps++;
+                if (tile.TileFrameX == 18)
+                {
+                    numActiveLamps++;
+                }
+                if (tile.TileFrameX == 36)
+                {
+                    numActiveLamps += rand.Next(0, 2);
+                }
+            }
+            switch (gateType)
+            {
+                case 0:
+                    return numLamps == numActiveLamps;
+                case 1:
+                    return numActiveLamps > 0;
+                case 2:
+                    return numActiveLamps != numLamps;
+                case 3:
+                    return numActiveLamps == 0;
+                case 4:
+                    return numActiveLamps == 1;
+                case 5:
+                    return numActiveLamps != 1;
+            }
+            return false;
+        }
         public static void HitwireChest(int i, int j)
         {
             Tile tile = Main.tile[i, j];

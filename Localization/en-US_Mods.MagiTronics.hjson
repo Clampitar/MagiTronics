@@ -26,6 +26,10 @@ Items: {
 
 	LogicBuffer: {
 		DisplayName: Logic Buffer
-		Tooltip: ""
+		Tooltip: 
+		'''
+		Place between logic gates and logic lamps to change their behaviour
+		The buffer is the input and the gate is the output
+		'''
 	}
 }

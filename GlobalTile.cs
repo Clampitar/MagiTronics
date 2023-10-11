@@ -11,5 +11,14 @@ namespace MagiTronics
         {
             MagicWiring.HitwireChest(i, j);
         }
+
+        public override bool TileFrame(int i, int j, int type, ref bool resetFrame, ref bool noBreak)
+        {
+            if(type == TileID.LogicGateLamp)
+            {
+                return MagicWiring.shouldKillLamp(i, j);
+            }
+            return true;
+        }
     }
 }
