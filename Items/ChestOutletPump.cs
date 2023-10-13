@@ -19,6 +19,7 @@ namespace MagiTronics.Items
             Item.useStyle = ItemUseStyleID.Swing;
             Item.consumable = true;
             Item.createTile = ModContent.TileType<Tiles.ChestOutletPump>();
+            Item.mech = true;
         }
 
         public override void AddRecipes()

@@ -18,6 +18,7 @@ namespace MagiTronics.Items
             Item.consumable = true;
             Item.createTile = ModContent.TileType<Tiles.Redirector>();
             Item.value = 50000;
+            Item.mech = true;
         }
 
         public override void AddRecipes()

@@ -17,6 +17,7 @@ namespace MagiTronics.Items
             Item.useStyle = ItemUseStyleID.Swing;
             Item.consumable = true;
             Item.createTile = ModContent.TileType<Tiles.ChestInletPump>();
+            Item.mech = true;
         }
 
 

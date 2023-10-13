@@ -30,12 +30,20 @@ namespace MagiTronics
         {
             Tile tile = Main.tile[x, y+1];
             int type = tile.TileType;
+            /*switch (type)
+            {
+                case ModContent.TileType<LogicBuffer>():
+                case ModContent.TileType<TickTimer>():
+                    return false;
+            }*/
             if(type == ModContent.TileType<Tiles.LogicBuffer>())
+                return false;
+            if (type == ModContent.TileType<TickTimer>())
                 return false;
             return true;
         }
 
-        public static bool satisfiesGate(int x, int y, int gateType)
+        public static bool SatisfiesGate(int x, int y, int gateType)
         {
             Tile tile = Main.tile[x, y];
             if(!tile.HasTile ||  tile.TileType != TileID.LogicGateLamp)
@@ -75,6 +83,33 @@ namespace MagiTronics
                     return numActiveLamps != 1;
             }
             return false;
+        }
+
+        public static int CountLamps(int x, int y)
+        {
+            Tile tile = Main.tile[x, y];
+            if (!tile.HasTile || tile.TileType != TileID.LogicGateLamp)
+                return -1;
+            int num = 0;
+            int multiplier = 1;
+            for (int i = y; i > Main.miniMapY; i--)
+            {
+                tile = Main.tile[x, i];
+                if (!tile.HasTile || tile.TileType != 419)
+                {
+                    break;
+                }
+                if (tile.TileFrameX == 18)
+                {
+                    num += multiplier;
+                }
+                if (tile.TileFrameX == 36)
+                {
+                    num += rand.Next(0, 2) * multiplier;
+                }
+                multiplier *= 2;
+            }
+            return num;
         }
         public static void HitwireChest(int i, int j)
         {

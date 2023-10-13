@@ -26,10 +26,19 @@ Items: {
 
 	LogicBuffer: {
 		DisplayName: Logic Buffer
+		Tooltip:
+			'''
+			Place between logic gates and logic lamps to change their behaviour
+			The buffer is the input and the gate is the output
+			'''
+	}
+
+	TickTimer: {
+		DisplayName: Tick Timer
 		Tooltip: 
 		'''
-		Place between logic gates and logic lamps to change their behaviour
-		The buffer is the input and the gate is the output
+		Activates every tick
+		Logic lamps can be placed over it to determine the number of ticks between activations
 		'''
 	}
 }

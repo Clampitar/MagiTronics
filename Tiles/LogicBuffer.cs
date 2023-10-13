@@ -29,7 +29,7 @@ namespace MagiTronics.Tiles
             TileObjectData.newTile.CopyFrom(TileObjectData.Style1x1);
             TileObjectData.newTile.LavaDeath = false;
             TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.AlternateTile, TileObjectData.newTile.Width, 0);
-            TileObjectData.newTile.AnchorAlternateTiles = new int[3] { 420, 419, Type };
+            TileObjectData.newTile.AnchorAlternateTiles = new int[4] { 420, 419, Type, ModContent.TileType<TickTimer>() };
             TileObjectData.newTile.StyleHorizontal = true;
             TileObjectData.newAlternate.CopyFrom(TileObjectData.newTile);
             TileObjectData.newAlternate.Origin = new Point16(0, 1);
@@ -44,7 +44,7 @@ namespace MagiTronics.Tiles
             if(tileDown.HasTile && tileDown.TileType == TileID.LogicGate)
             {
                 int gateType = tileDown.TileFrameY / 18;
-                if(MagicWiring.satisfiesGate(i, j-1, gateType))
+                if(MagicWiring.SatisfiesGate(i, j-1, gateType))
                 {
                     tileDown.TileFrameX = 18;
                     Wiring.SkipWire(i, j + 1);
