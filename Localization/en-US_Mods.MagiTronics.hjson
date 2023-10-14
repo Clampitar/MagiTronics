@@ -35,10 +35,15 @@ Items: {
 
 	TickTimer: {
 		DisplayName: Tick Timer
-		Tooltip: 
-		'''
-		Activates every tick
-		Logic lamps can be placed over it to determine the number of ticks between activations
-		'''
+		Tooltip:
+			'''
+			Activates every tick
+			Logic lamps can be placed over it to determine the number of ticks between activations
+			'''
+	}
+
+	SignalCounter: {
+		DisplayName: Signal Counter
+		Tooltip: ""
 	}
 }

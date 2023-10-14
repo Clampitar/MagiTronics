@@ -24,23 +24,23 @@ namespace MagiTronics
 
         private static ChestManager chestManager = new ChestManager();
 
-        private static Random rand = new Random();
+        public static Random rand = new Random();
 
         public static bool shouldKillLamp(int x, int y)
         {
             Tile tile = Main.tile[x, y+1];
-            int type = tile.TileType;
-            /*switch (type)
+            if (tile.TileFrameX % 18 != 0)
             {
-                case ModContent.TileType<LogicBuffer>():
-                case ModContent.TileType<TickTimer>():
-                    return false;
-            }*/
-            if(type == ModContent.TileType<Tiles.LogicBuffer>())
-                return false;
-            if (type == ModContent.TileType<TickTimer>())
-                return false;
-            return true;
+                return true;
+            }
+            if (tile.TileFrameY % 18 != 0)
+            {
+                return true;
+            }
+            int type = tile.TileType;
+            return type != ModContent.TileType<LogicBuffer>()
+                && type != ModContent.TileType<TickTimer>()
+                && type != ModContent.TileType<SignalCounter>();
         }
 
         public static bool SatisfiesGate(int x, int y, int gateType)
