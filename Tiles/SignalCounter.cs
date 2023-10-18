@@ -2,7 +2,6 @@
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
-using Terraria.ID;
 
 namespace MagiTronics.Tiles
 {
@@ -25,29 +24,7 @@ namespace MagiTronics.Tiles
 
         public override void HitWire(int x, int y)
         {
-            for (int lampY = y-1; lampY > Main.miniMapY; lampY--)
-            {
-                Tile tile = Main.tile[x, lampY];
-                if (!tile.HasTile || tile.TileType != TileID.LogicGateLamp)
-                {
-                    break;
-                }
-                //Wiring.TripWire(x, lampY, 1, 1);
-                Wiring.SkipWire(x, lampY);
-                Wiring.SkipWire(x, y);
-                if (tile.TileFrameX == 0)
-                {
-                    tile.TileFrameX = 18;
-                    break;
-                }
-                if(tile.TileFrameX == 18){
-                    tile.TileFrameX = 0;
-                }
-                if(tile.TileFrameX == 36) {
-                    if (MagicWiring.rand.Next(0, 2) == 0)
-                        break;
-                }
-            }
+            MagicWiring.SignalsToCount.Enqueue(new Point16(x, y));
             Wiring.SkipWire(x, y);
         }
     }

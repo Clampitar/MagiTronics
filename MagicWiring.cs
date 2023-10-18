@@ -24,7 +24,54 @@ namespace MagiTronics
 
         private static ChestManager chestManager = new ChestManager();
 
+        public static Queue<Point16> SignalsToCount = new Queue<Point16>();
+
+        private static List<Point16> signalsDone = new List<Point16>();
+
         public static Random rand = new Random();
+
+        public static void LogicPass()
+        {
+            Queue<Point16> lampsToTrip = new Queue<Point16>();
+            foreach(Point16 point in SignalsToCount)
+            {
+                if (signalsDone.Contains(point))
+                {
+                    continue;
+                }
+                signalsDone.Add(point);
+                for (int lampY = point.Y - 1; lampY > Main.miniMapY; lampY--)
+                {
+                    Tile tile = Main.tile[point.X, lampY];
+                    if (!tile.HasTile || tile.TileType != TileID.LogicGateLamp)
+                    {
+                        break;
+                    }
+                    signalsDone.Add(new Point16(point.X, lampY));
+                    lampsToTrip.Enqueue(new Point16(point.X, lampY));
+                    if (tile.TileFrameX == 0)
+                    {
+                        tile.TileFrameX = 18;
+                        break;
+                    }
+                    if (tile.TileFrameX == 18)
+                    {
+                        tile.TileFrameX = 0;
+                    }
+                    if (tile.TileFrameX == 36)
+                    {
+                        if (MagicWiring.rand.Next(0, 2) == 0)
+                            break;
+                    }
+                }
+            }
+            foreach(Point16 point in lampsToTrip)
+            {
+                Wiring.TripWire(point.X, point.Y, 1, 1);
+            }
+            SignalsToCount.Clear();
+            signalsDone.Clear();
+        }
 
         public static bool shouldKillLamp(int x, int y)
         {

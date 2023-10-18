@@ -26,14 +26,10 @@ namespace MagiTronics.Tiles
             TileObjectData.newTile.AnchorBottom = AnchorData.Empty;
             TileObjectData.addTile(Type);
 
-            TileObjectData.newTile.CopyFrom(TileObjectData.Style1x1);
-            TileObjectData.newTile.LavaDeath = false;
-            TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.AlternateTile, TileObjectData.newTile.Width, 0);
+            TileObjectData.newTile.CopyFrom(TileObjectData.GetTileData(419, 0));
             TileObjectData.newTile.AnchorAlternateTiles = new int[5] { 420, 419, Type, ModContent.TileType<TickTimer>(), ModContent.TileType<SignalCounter>() };
-            TileObjectData.newTile.StyleHorizontal = true;
             TileObjectData.newAlternate.CopyFrom(TileObjectData.newTile);
-            TileObjectData.newAlternate.Origin = new Point16(0, 1);
-            TileObjectData.newAlternate.AnchorAlternateTiles = new int[2] { 419, Type };
+            TileObjectData.newAlternate.AnchorAlternateTiles = new int[4] { 419, Type, ModContent.TileType<TickTimer>(), ModContent.TileType<SignalCounter>() };
             TileObjectData.addTile(419);
         }
 

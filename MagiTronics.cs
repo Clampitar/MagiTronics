@@ -11,6 +11,7 @@ namespace MagiTronics
         {
             IL_Wiring.XferWater += Wiring_XferWater;
             IL_Main.DrawWires += DrawWire;
+            IL_Wiring.LogicGatePass += LogicPass;
         }
 
         private void Wiring_XferWater(ILContext il)
@@ -38,6 +39,22 @@ namespace MagiTronics
     
                 cursor.Emit(Mono.Cecil.Cil.OpCodes.Call, typeof(MagicWiring).GetMethod("DrawMagicWire", new Type[] { }));
 
+            }
+            catch
+            {
+
+                MonoModHooks.DumpIL(ModContent.GetInstance<MagiTronics>(), il);
+            }
+        }
+
+        private void LogicPass(ILContext il)
+        {
+            try
+            {
+                ILCursor cursor = new ILCursor(il);
+                cursor.Goto(0);
+
+                cursor.Emit(Mono.Cecil.Cil.OpCodes.Call, typeof(MagicWiring).GetMethod("LogicPass", new Type[] { }));
             }
             catch
             {
