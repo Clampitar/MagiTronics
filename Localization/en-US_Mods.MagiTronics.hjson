@@ -9,19 +9,22 @@ Items: {
 		Tooltip: ""
 	}
 
-	PickorWrench: {
-		DisplayName: Pickor Wrench
-		Tooltip: ""
-	}
-
 	UsageTerminal: {
 		DisplayName: Usage Terminal
-		Tooltip: Recieves item useage from redirectors
+		Tooltip:
+			'''
+			Recieves item usage from redirectors
+			Can be removed with wire cutters
+			'''
 	}
 
 	Redirector: {
 		DisplayName: Redirector
-		Tooltip: Redirects item usage towards tiles with terminals
+		Tooltip:
+			'''
+			Redirects item usage towards tiles with terminals
+			Terminals must be wired
+			'''
 	}
 
 	LogicBuffer: {
@@ -44,6 +47,10 @@ Items: {
 
 	SignalCounter: {
 		DisplayName: Signal Counter
-		Tooltip: ""
+		Tooltip:
+			'''
+			Counts signals in binary
+			Logic lamps placed above it will send wire signals
+			'''
 	}
 }
