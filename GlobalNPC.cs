@@ -9,7 +9,12 @@ namespace MagiTronics {
         {
             if (shop.NpcType == NPCID.Mechanic)
             {
+                shop.Add(ModContent.ItemType<Items.TickTimer>());
                 shop.Add(ModContent.ItemType<Items.UsageTerminal>());
+            }
+            if(shop.NpcType == NPCID.Steampunker)
+            {
+                shop.Add(ModContent.ItemType<Items.LogicBuffer>());
             }
         }
     }

@@ -16,6 +16,7 @@ namespace MagiTronics.Items
             Item.consumable = true;
             Item.createTile = ModContent.TileType<Tiles.TickTimer>();
             Item.mech = true;
+            Item.value = 30000;
         }
     }
 }

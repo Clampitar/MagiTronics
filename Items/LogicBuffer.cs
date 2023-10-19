@@ -19,6 +19,8 @@ namespace MagiTronics.Items
             Item.consumable = true;
             Item.createTile = ModContent.TileType<Tiles.LogicBuffer>();
             Item.mech = true;
+            Item.value = 20000;
+            Item.ResearchUnlockCount = 5;
         }
     }
 }

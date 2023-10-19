@@ -1,4 +1,5 @@
-﻿using Terraria.ID;
+﻿using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagiTronics.Items
@@ -16,6 +17,17 @@ namespace MagiTronics.Items
             Item.consumable = true;
             Item.createTile = ModContent.TileType<Tiles.SignalCounter>();
             Item.mech = true;
+            Item.ResearchUnlockCount = 5;
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.SoulofMight, 1);
+            recipe.AddRecipeGroup(RecipeGroupID.IronBar, 1);
+            recipe.AddIngredient(ItemID.Wire);
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.Register();
         }
     }
 }
