@@ -17,12 +17,15 @@ namespace MagiTronics.Tiles
             
 
             TileObjectData.newTile.CopyFrom(TileObjectData.Style1x1);
-            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16 };
-            TileObjectData.newTile.AnchorBottom = AnchorData.Empty;
-            TileObjectData.newTile.Origin = new Point16(0, 0);
-            TileObjectData.newTile.HookPostPlaceMyPlayer = new PlacementHook(ModContent.GetInstance<TETickTimer>().Hook_AfterPlacement, -1, 0, false);
-            TileObjectData.newTile.UsesCustomCanPlace = true;
+            TileObjectData.newTile.LavaDeath = false;
+            TileObjectData.newTile.HookPostPlaceMyPlayer = new Terraria.DataStructures.PlacementHook(ModContent.GetInstance<TETickTimer>().Hook_AfterPlacement, 0, 0, false);
             TileObjectData.addTile(Type);
+        }
+
+        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+        {
+            ModContent.GetInstance<TETickTimer>().Kill(i, j);
+            base.KillTile(i, j, ref fail, ref effectOnly, ref noItem);
         }
 
         public override bool RightClick(int i, int j)
