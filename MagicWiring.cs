@@ -178,20 +178,6 @@ namespace MagiTronics
             }
         }
 
-        public static void DrawMagicWire(){
-            foreach (Point16 point in MagitronicsWorld.modedActuators)
-                Main.spriteBatch.Draw(
-                MagitronicsWorld.texture,                                                                       //a texture2d
-                new Vector2(point.X * 16 - (int)Main.screenPosition.X, point.Y * 16 - (int)Main.screenPosition.Y),      //a vector2
-                new Rectangle(0, 0, 16, 16),              //a rectangle
-     new Color(255, 255, 255),                                                                                  //a color
-     0f,                                                                                                //a float
-     default,                                                                                  // a vector2
-     1f,
-     SpriteEffects.None,
-     0f);
-        }
-
         public static void XferWater()
         {
             if (addedPump)

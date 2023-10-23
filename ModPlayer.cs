@@ -19,6 +19,11 @@ namespace MagiTronics
                 Player.tileTargetY += shift.Y;
                 Player.tileRangeX += Math.Abs(shift.X);
                 Player.tileRangeY += Math.Abs(shift.Y);
+                MagitronicsWorld.SetCursorTarget();
+            }
+            else
+            {
+                MagitronicsWorld.resetCursorTarget();
             }
             return true;
         }
