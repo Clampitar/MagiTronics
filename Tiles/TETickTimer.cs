@@ -1,5 +1,4 @@
 ﻿using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -40,10 +39,15 @@ namespace MagiTronics.Tiles
             base.Update();
         }
 
-        public override bool IsTileValidForEntity(int x, int y)
+        public override bool IsTileValidForEntity(int x, int y) //this is only called when entering a world
         {
             Tile tile = Main.tile[x, y];
-            return tile.HasTile && tile.TileType == ModContent.TileType<TickTimer>();
+            if( tile.HasTile && tile.TileType == ModContent.TileType<TickTimer>())
+            {
+                tile.TileFrameY = 0;
+                return true;
+            }
+            return false;
         }
 
         public override int Hook_AfterPlacement(int x, int y, int type, int style, int direction, int alternate)

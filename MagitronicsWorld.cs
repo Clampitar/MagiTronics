@@ -10,9 +10,7 @@ using Microsoft.Xna.Framework;
 using MagiTronics.Items;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
-using System.IO;
 using Terraria.GameContent;
-using Terraria.GameInput;
 using Terraria.GameContent.UI;
 
 namespace MagiTronics
@@ -40,15 +38,6 @@ namespace MagiTronics
         public static List<Point16> modedActuators = new();
 
         public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
-
-        public override bool HijackGetData(ref byte messageType, ref BinaryReader reader, int playerNumber)
-        {
-            if(messageType == MessageID.TileManipulation && Main.netMode == NetmodeID.Server)
-            {
-
-            }
-            return false;
-        }
 
         private static Vector2 AdjustPosition(Vector2 renderPosition)
         {
@@ -87,11 +76,23 @@ namespace MagiTronics
             Rectangle rec = new Rectangle(0, 0, 16, 16);
             float r = 0.3f;
             float g = 0.3f;
-            float b = 1f;
-            float a = 1f;
-            float colormult = 255f;
-            Color c = Main.buffColor(newColor, r, g, b, a);
-            Main.spriteBatch.Draw(TextureAssets.SmartDig.Value, renderPosition, rec, c * colormult, 0f, default, Main.GameViewMatrix.Zoom, SpriteEffects.None, 0f);
+            float b = 0.9f;
+            float a = 0.8f;
+            float colormult = 0.8f;
+            Color c = Main.buffColor(newColor, r, g, b, a) * colormult;
+            Vector2 scale = Main.GameViewMatrix.Zoom;
+            //Main.spriteBatch.Draw(TextureAssets.SmartDig.Value, renderPosition, rec, c * colormult, 0f, default, Main.GameViewMatrix.Zoom, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition , rec, c, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            r = 0.1f;
+            b = 0.9f;
+            g = 0.1f;
+            a = 0.8f;
+            colormult = 1f;
+            c = Main.buffColor(newColor, r, g, b, a) * colormult;
+            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitX * -2f * scale, rec, c, 0f, Vector2.Zero, new Vector2(0.125f, 1f) * scale , SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitX * 16 * scale, rec, c, 0f, Vector2.Zero, new Vector2(0.125f, 1f) * scale , SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * -2f * scale  , rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) *  scale, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * 16f * scale, rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) * scale , SpriteEffects.None, 0f);
         }
 
         public static bool AddData(Point16 point)
