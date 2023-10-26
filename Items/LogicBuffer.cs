@@ -21,6 +21,7 @@ namespace MagiTronics.Items
             Item.mech = true;
             Item.value = 20000;
             Item.ResearchUnlockCount = 5;
+            Item.rare = ItemRarityID.Blue;
         }
     }
 }

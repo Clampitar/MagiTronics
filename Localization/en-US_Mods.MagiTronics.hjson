@@ -53,4 +53,9 @@ Items: {
 			Logic lamps placed above it will send wire signals
 			'''
 	}
+
+	BossSensor: {
+		DisplayName: Logic Sensor (???)
+		Tooltip: "Unfinished. currently does nothing"
+	}
 }

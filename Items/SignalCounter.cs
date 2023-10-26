@@ -18,6 +18,7 @@ namespace MagiTronics.Items
             Item.createTile = ModContent.TileType<Tiles.SignalCounter>();
             Item.mech = true;
             Item.ResearchUnlockCount = 5;
+            Item.rare = ItemRarityID.Blue;
         }
 
         public override void AddRecipes()
