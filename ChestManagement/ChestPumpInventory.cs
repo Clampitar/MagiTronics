@@ -2,7 +2,7 @@
 using Terraria;
 using Terraria.ID;
 
-namespace MagiTronics
+namespace MagiTronics.ChestManagement
 {
     internal class ChestPumpInventory : ManagableChest
     {
@@ -36,12 +36,13 @@ namespace MagiTronics
                 {
                     emptySpaces.Enqueue(i);
                 }
-                else switch(item.type)
+                else switch (item.type)
                     {
-                        case ItemID.EmptyBucket: numBuckets += item.stack;
+                        case ItemID.EmptyBucket:
+                            numBuckets += item.stack;
                             bucketindex = i; break;
                         case ItemID.WaterBucket: bucketSpaces[0] = i; break;
-                        case ItemID.LavaBucket:  bucketSpaces[1] = i; break;
+                        case ItemID.LavaBucket: bucketSpaces[1] = i; break;
                         case ItemID.HoneyBucket: bucketSpaces[2] = i; break;
 
                         case ItemID.BottomlessBucket: bottomlessBucketType = 0; break;
@@ -56,18 +57,18 @@ namespace MagiTronics
                             sponge[0] = true; sponge[1] = true; sponge[2] = true; sponge[3] = true; break;
 
                     }
-                    
+
 
             }
         }
 
         public override bool WaterOut(out int liquidType)
         {
-            if(bottomlessBucketType != -1)
+            if (bottomlessBucketType != -1)
             {
                 liquidType = bottomlessBucketType; return true;
             }
-            for(int type = 0; type < 3; type++)
+            for (int type = 0; type < 3; type++)
                 if (bucketSpaces[type] != -1 && TransferFromBucket(type))
                 {
                     if (items[bucketSpaces[type]].stack <= 1)
@@ -97,7 +98,7 @@ namespace MagiTronics
         public override bool WaterIn(int liquidType)
         {
             if (sponge[liquidType]) return true;
-            if (liquidType == 3) return false;
+            if (liquidType == 3) return sponge[0];
             if (bucketindex != -1)
                 if (TransferToBucket(liquidType))
                 {
@@ -105,14 +106,15 @@ namespace MagiTronics
                     {
                         items[bucketindex].TurnToAir();
                         bucketindex = -1;
-                        for(int i = 0; i < items.Length; i++)
+                        for (int i = 0; i < items.Length; i++)
                         {
                             if (items[i].type == ItemID.EmptyBucket)
                             {
                                 bucketindex = i; break;
                             }
                         }
-                    } else items[bucketindex].stack--;
+                    }
+                    else items[bucketindex].stack--;
                     return true;
                 }
             return false;
@@ -120,7 +122,7 @@ namespace MagiTronics
 
         private bool TransferFromBucket(int liquidType)
         {
-            if(bucketindex == -1)
+            if (bucketindex == -1)
             {
                 for (int i = 0; i < items.Length; i++)
                 {
@@ -132,7 +134,7 @@ namespace MagiTronics
                         return true;
                     }
                 }
-                if(!emptySpaces.TryDequeue(out bucketindex))
+                if (!emptySpaces.TryDequeue(out bucketindex))
                 {
                     bucketindex = -1;
                     return false;
@@ -154,7 +156,7 @@ namespace MagiTronics
 
         private bool TransferToBucket(int liquidType)
         {
-            
+
             if (bucketSpaces[liquidType] == -1)
             {
                 for (int i = 0; i < items.Length; i++)
@@ -172,7 +174,8 @@ namespace MagiTronics
                     bucketSpaces[liquidType] = -1;
                     return false;
                 }
-                else {
+                else
+                {
                     items[bucketSpaces[liquidType]] = new Item(bucketID[liquidType]);
                     return true;
                 }

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using MagiTronics.Tiles;
 using System;
+using MagiTronics.ChestManagement;
 
 namespace MagiTronics
 {
@@ -176,6 +177,8 @@ namespace MagiTronics
                     break;
                     
             }
+            if (MagiTronics.magicStorageLoaded)
+                chestManager.checkMagicStorage(i, j, type);
         }
 
         public static void XferWater()

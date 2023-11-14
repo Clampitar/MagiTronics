@@ -1,4 +1,4 @@
-﻿namespace MagiTronics
+﻿namespace MagiTronics.ChestManagement
 {
     internal abstract class ManagableChest
     {

@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.GameContent.Tile_Entities;
 using Terraria.ID;
 
-namespace MagiTronics
+namespace MagiTronics.ChestManagement
 {
     internal class ItemFrame : ManagableChest
     {
@@ -16,12 +16,12 @@ namespace MagiTronics
 
         public static int FindByGuessing(int x, int y)
         {
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
-                for(int j = 0; j < 2; j++)
+                for (int j = 0; j < 2; j++)
                 {
-                    int id = TEItemFrame.Find(x-i, y-j);
-                    if(id >= 0)
+                    int id = TEItemFrame.Find(x - i, y - j);
+                    if (id >= 0)
                         return id;
                 }
             }
@@ -84,9 +84,9 @@ namespace MagiTronics
             }
             if (item.type == ItemID.UltraAbsorbantSponge)
                 return true;
-            if(item.type == ItemID.SuperAbsorbantSponge && (liquidType == LiquidID.Water || liquidType == LiquidID.Shimmer))
+            if (item.type == ItemID.SuperAbsorbantSponge && (liquidType == LiquidID.Water || liquidType == LiquidID.Shimmer))
                 return true;
-            if(item.type == ItemID.LavaAbsorbantSponge && liquidType == LiquidID.Lava)
+            if (item.type == ItemID.LavaAbsorbantSponge && liquidType == LiquidID.Lava)
                 return true;
             if (item.type == ItemID.HoneyAbsorbantSponge && liquidType == LiquidID.Honey)
                 return true;

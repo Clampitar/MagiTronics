@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using MagicStorage.Components;
+using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.Tile_Entities;
 using Terraria.ID;
+using Terraria.ModLoader;
 
-namespace MagiTronics
+namespace MagiTronics.ChestManagement
 {
     internal class ChestManager
     {
@@ -36,7 +38,7 @@ namespace MagiTronics
 
         public void AddChest(int x, int y, int type)
         {
-            switch(type)
+            switch (type)
             {
                 case TileID.PiggyBank:
                     hasPiggyBank = true;
@@ -50,6 +52,18 @@ namespace MagiTronics
                 default:
                     unknownChests.Enqueue(new ChestLocation(x, y, type));
                     break;
+            }
+        }
+        [JITWhenModsEnabled("MagicStorage")]
+        public void checkMagicStorage(int i, int j, int type)
+        {
+            if (TileLoader.GetTile(type) is StorageComponent || type == ModContent.TileType<StorageConnector>())
+            {
+                MagicChest mc = new MagicChest(i, j);
+                if(mc.valid)
+                {
+                    chests.Add(mc);
+                }
             }
         }
 
@@ -94,11 +108,11 @@ namespace MagiTronics
 
         private ChestPumpInventory playerChest()
         {
-            if(Main.netMode == NetmodeID.SinglePlayer)
+            if (Main.netMode == NetmodeID.SinglePlayer)
             {
                 if (hasPiggyBank)
                 {
-                    if(piggyBank == null)
+                    if (piggyBank == null)
                         piggyBank = new ChestPumpInventory(Main.player[0].bank.item);
                     return piggyBank;
                 }
@@ -127,7 +141,7 @@ namespace MagiTronics
 
         private bool DiscoverChest()
         {
-            if(!unknownChests.TryDequeue(out ChestLocation location))
+            if (!unknownChests.TryDequeue(out ChestLocation location))
                 return false;
             switch (location.id)
             {
@@ -147,9 +161,9 @@ namespace MagiTronics
                         chests.Add(ir);
                     }
                     break;
-             }
+            }
             return true;
-        }   
+        }
 
 
         private static int PatchedFindChestByGuessing(ChestLocation cl)
