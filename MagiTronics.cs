@@ -7,10 +7,13 @@ namespace MagiTronics
 {
 	public class MagiTronics : Mod
 	{
+        public static bool magicStorageLoaded = false;
         public override void Load()
         {
             IL_Wiring.XferWater += Wiring_XferWater;
             IL_Wiring.LogicGatePass += LogicPass;
+
+            magicStorageLoaded = ModLoader.HasMod("MagicStorage");
         }
 
         private void Wiring_XferWater(ILContext il)
