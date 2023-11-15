@@ -33,6 +33,10 @@ namespace MagiTronics
 
         public static void LogicPass()
         {
+            foreach(Point16 p in Wiring._LampsToCheck)
+            {
+                LogicBuffer.UpdatedLamp(p.X, p.Y);
+            }
             Queue<Point16> lampsToTrip = new Queue<Point16>();
             foreach(Point16 point in SignalsToCount)
             {

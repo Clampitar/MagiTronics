@@ -65,5 +65,40 @@ namespace MagiTronics.Tiles
             return false;
         }
 
+        public static void UpdatedLamp(int x, int y)
+        {
+            for(int j= y; j< Main.maxScreenH; j++)
+            {
+                Tile tile = Main.tile[x, j];
+                if (!tile.HasTile) return;
+                if (tile.TileType == ModContent.TileType<LogicBuffer>())
+                {
+                    Tile tileDown = Main.tile[x, j + 1];
+                    if (tileDown.HasTile && tileDown.TileType == TileID.LogicGate)
+                    {
+                        int gateType = tileDown.TileFrameY / 18;
+                        if (MagicWiring.SatisfiesGate(x, j - 1, gateType))
+                        {
+                            tileDown.TileFrameX = 18;
+                        }
+                        else
+                        {
+                            tileDown.TileFrameX = 0;
+                        }
+                        WorldGen.SquareTileFrame(x, j + 1);
+                        if(Main.netMode == NetmodeID.MultiplayerClient)
+                        {
+                            NetMessage.SendTileSquare(Main.myPlayer, x, j + 1);
+                        }
+                        else if (Main.netMode == NetmodeID.Server)
+                        {
+                            NetMessage.SendTileSquare(-1, x, j + 1);
+                        }
+                    }
+                }
+                else if (tile.TileType != TileID.LogicGateLamp) return;
+            }
+        }
+
     }
 }

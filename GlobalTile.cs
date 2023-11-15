@@ -20,5 +20,13 @@ namespace MagiTronics
             }
             return true;
         }
+
+        public override void PlaceInWorld(int i, int j, int type, Item item)
+        {
+            if(type == TileID.LogicGateLamp)
+            {
+                LogicBuffer.UpdatedLamp(i, j);
+            }
+        }
     }
 }
