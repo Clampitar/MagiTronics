@@ -3,13 +3,24 @@ using Terraria;
 using System.Collections.Generic;
 using Terraria.ID;
 using MagiTronics.Tiles;
+using Terraria.ModLoader;
 
 namespace MagiTronics
 {
-    internal class TerminalChecker
+    internal static class TerminalChecker
     {
         //slightly modified from Vanilla Wiring
         private static Dictionary<Point16, bool> _wireSkip;
+        private static Queue<Point16> BuffersToCheck;
+        private static Queue<Point16> BuffersCurrent;
+        private static Dictionary<Point16, bool> BuffersDone;
+
+        public static void initialize()
+        {
+            BuffersToCheck = new Queue<Point16>();
+            BuffersCurrent = new Queue<Point16>();
+            BuffersDone = new Dictionary<Point16, bool>();
+        }
         public static void TripWire(int left, int top, int width, int height)
         {
             _wireSkip = new Dictionary<Point16, bool>();
@@ -38,15 +49,15 @@ namespace MagiTronics
             {
                 HitWire(Wiring._wireList, 1);
             }
-            for (int k = left; k < left + width; k++)
+            for (int i = left; i < left + width; i++)
             {
-                for (int l = top; l < top + height; l++)
+                for (int j = top; j < top + height; j++)
                 {
-                    Point16 back2 = new Point16(k, l);
-                    Tile tile2 = Main.tile[k, l];
-                    if (tile2 != null && tile2.GreenWire)
+                    Point16 back = new Point16(i, j);
+                    Tile tile = Main.tile[i, j];
+                    if (tile != null && tile.GreenWire)
                     {
-                        Wiring._wireList.PushBack(back2);
+                        Wiring._wireList.PushBack(back);
                     }
                 }
             }
@@ -54,15 +65,15 @@ namespace MagiTronics
             {
                 HitWire(Wiring._wireList, 2);
             }
-            for (int m = left; m < left + width; m++)
+            for (int i = left; i < left + width; i++)
             {
-                for (int n = top; n < top + height; n++)
+                for (int j = top; j < top + height; j++)
                 {
-                    Point16 back3 = new Point16(m, n);
-                    Tile tile3 = Main.tile[m, n];
-                    if (tile3 != null && tile3.BlueWire)
+                    Point16 back = new Point16(i, j);
+                    Tile tile = Main.tile[i, j];
+                    if (tile != null && tile.BlueWire)
                     {
-                        Wiring._wireList.PushBack(back3);
+                        Wiring._wireList.PushBack(back);
                     }
                 }
             }
@@ -70,15 +81,15 @@ namespace MagiTronics
             {
                 HitWire(Wiring._wireList, 3);
             }
-            for (int num2 = left; num2 < left + width; num2++)
+            for (int i = left; i < left + width; i++)
             {
-                for (int num3 = top; num3 < top + height; num3++)
+                for (int j = top; j < top + height; j++)
                 {
-                    Point16 back4 = new Point16(num2, num3);
-                    Tile tile4 = Main.tile[num2, num3];
-                    if (tile4 != null && tile4.YellowWire)
+                    Point16 back = new Point16(i, j);
+                    Tile tile = Main.tile[i, j];
+                    if (tile != null && tile.YellowWire)
                     {
-                        Wiring._wireList.PushBack(back4);
+                        Wiring._wireList.PushBack(back);
                     }
                 }
             }
@@ -87,6 +98,7 @@ namespace MagiTronics
                 HitWire(Wiring._wireList, 4);
             }
             Wiring.running = false;
+            bufferGatePass();
         }
 
         private static void HitWire(DoubleStack<Point16> next, int wireType)
@@ -107,10 +119,7 @@ namespace MagiTronics
                 int num = Wiring._wireDirectionList.PopFront();
                 int x = key.X;
                 int y = key.Y;
-                    if (MagitronicsWorld.modedActuators.Contains(key))
-                    {
-                        TERedirector.registerTerminal(key);
-                    }
+                HitWireSingle(key);
                 for (int j = 0; j < 4; j++)
                 {
                     int num2;
@@ -218,7 +227,61 @@ namespace MagiTronics
             Wiring._toProcess.Clear();
 
         }
+
+        private static void HitWireSingle(Point16 key)
+        {
+            if (MagitronicsWorld.modedActuators.Contains(key))
+            {
+                TERedirector.registerTerminal(key);
+            }
+            Tile tile = Main.tile[key.X, key.Y];
+            if (!tile.HasTile) return;
+            if(tile.TileType == ModContent.TileType<Tiles.LogicBuffer>())
+            {
+                BuffersToCheck.Enqueue(key);
+            }
+        }
+        private static void bufferGatePass()
+        {
+            if(BuffersCurrent.Count > 0)
+            {
+                return;
+            }
+            BuffersDone.Clear();
+            while (BuffersToCheck.Count > 0)
+            {
+                Utils.Swap(ref BuffersCurrent, ref BuffersToCheck);
+                while (BuffersCurrent.Count > 0)
+                {
+                    Point16 point = BuffersCurrent.Peek();
+                    if(BuffersDone.TryGetValue(point, out bool b) && b)
+                    {
+                        BuffersCurrent.Dequeue();
+                        continue;
+                    }
+                    BuffersDone.Add(point, true);
+                    Tile tileDown = Main.tile[point.X, point.Y + 1];
+                    if (tileDown.HasTile && tileDown.TileType == TileID.LogicGate)
+                    {
+                        int gateType = tileDown.TileFrameY / 18;
+                        if (MagicWiring.SatisfiesGate(point.X, point.Y - 1, gateType))
+                        {
+                            tileDown.TileFrameX = 18;
+                            TripWire(point.X, point.Y + 1, 1, 1);
+                        }
+                        else
+                        {
+                            tileDown.TileFrameX = 0;
+                        }
+                    }
+                    BuffersCurrent.Dequeue();
+                    
+                }
+            }
+        }
     }
+
+    
 
 
 }

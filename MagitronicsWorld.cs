@@ -28,6 +28,7 @@ namespace MagiTronics
             modedActuators =  tag.Get<List<Point16>>("modedActuators");
             texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
             cursorTarget = Point16.NegativeOne;
+            TerminalChecker.initialize();
         }
 
         public override void SaveWorldData(TagCompound tag)
