@@ -25,7 +25,17 @@ namespace MagiTronics.Tiles
             TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16 };
             TileObjectData.newTile.AnchorBottom = AnchorData.Empty;
             TileObjectData.newTile.UsesCustomCanPlace = true;
+            TileObjectData.newTile.HookPostPlaceMyPlayer = new Terraria.DataStructures.PlacementHook(ModContent.GetInstance<TEBossSensor>().Hook_AfterPlacement, 0, 0, false);
             TileObjectData.addTile(Type);
         }
+
+
+        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+        {
+            ModContent.GetInstance<TEBossSensor>().Kill(i, j);
+            base.KillTile(i, j, ref fail, ref effectOnly, ref noItem);
+        }
+
+        
     }
 }

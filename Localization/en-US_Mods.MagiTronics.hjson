@@ -55,7 +55,7 @@ Items: {
 	}
 
 	BossSensor: {
-		DisplayName: Logic Sensor (???)
-		Tooltip: "Unfinished. currently does nothing"
+		DisplayName: Logic Sensor (Danger)
+		Tooltip: Activates when there is danger
 	}
 }

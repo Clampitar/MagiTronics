@@ -67,7 +67,7 @@ namespace MagiTronics.Tiles
 
         public static void UpdatedLamp(int x, int y)
         {
-            for(int j= y; j< Main.maxScreenH; j++)
+            for(int j= y; j< Main.maxTilesY; j++)
             {
                 Tile tile = Main.tile[x, j];
                 if (!tile.HasTile) return;
