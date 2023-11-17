@@ -1,4 +1,6 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -16,13 +18,17 @@ namespace MagiTronics.Tiles
                 on = newState;
                 Tile tile = Main.tile[Position.X, Position.Y];
                 tile.TileFrameX = onX;
+                SoundEngine.PlaySound(SoundID.Mech, new Vector2(Position.X, Position.Y));
+                if (Main.netMode == 2)
+                {
+                    NetMessage.SendTileSquare(-1, base.Position.X, base.Position.Y);
+                }
                 Wiring.TripWire(Position.X, Position.Y, 1,1);
             }
         }
 
         public override void Update()
         {
-            int asd = Main.netMode;
             Activate(NPC.AnyDanger());
             base.Update();
         }
@@ -36,6 +42,10 @@ namespace MagiTronics.Tiles
                 if(tile.TileFrameX != onX)
                 {
                     tile.TileFrameX = onX;
+                    if (Main.netMode == 2)
+                    {
+                        NetMessage.SendTileSquare(-1, base.Position.X, base.Position.Y);
+                    }
                     Wiring.TripWire(Position.X, Position.Y, 1, 1);
                 }
                 return true;

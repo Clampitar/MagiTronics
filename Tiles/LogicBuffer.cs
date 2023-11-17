@@ -24,6 +24,7 @@ namespace MagiTronics.Tiles
             TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16 };
             TileObjectData.newTile.CoordinatePadding = 0;
             TileObjectData.newTile.AnchorBottom = AnchorData.Empty;
+            TileObjectData.newTile.LavaDeath = false;
             TileObjectData.addTile(Type);
 
             TileObjectData.newTile.CopyFrom(TileObjectData.GetTileData(419, 0));

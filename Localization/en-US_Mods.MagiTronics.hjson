@@ -58,4 +58,9 @@ Items: {
 		DisplayName: Logic Sensor (Danger)
 		Tooltip: Activates when there is danger
 	}
+
+	LonelySensor: {
+		DisplayName: Logic sensor (Lonely)
+		Tooltip: Activates When it is seperate from any tiles or walls
+	}
 }
