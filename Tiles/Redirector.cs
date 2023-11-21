@@ -33,11 +33,6 @@ namespace MagiTronics.Tiles
 
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
-            int number = Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i + 16, j + 16), new Vector2(i + 16, j + 16), new Vector2(0, 0), ModContent.GetInstance<Items.Redirector>().Type);
-            if (Main.netMode == NetmodeID.MultiplayerClient)
-            {
-                NetMessage.SendData(MessageID.SyncItem, -1, -1, null, number, 1f);
-            }
             ModContent.GetInstance<TERedirector>().Kill(i, j);
         }
 
