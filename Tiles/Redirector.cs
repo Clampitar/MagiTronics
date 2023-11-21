@@ -41,6 +41,24 @@ namespace MagiTronics.Tiles
             ModContent.GetInstance<TERedirector>().Kill(i, j);
         }
 
+        public override void MouseOver(int i, int j)
+        {
+            if(Main.netMode == NetmodeID.Server)
+            {
+                base.MouseOver(i, j);
+                return;
+            }
+            Point16 shift = Redirect(i, j);
+            if (shift != Point16.Zero)
+            {
+                Player.tileTargetX += shift.X;
+                Player.tileTargetY += shift.Y;
+                Main.LocalPlayer.TileInteractionsCheck(Player.tileTargetX, Player.tileTargetY);
+                Player.tileTargetX -= shift.X;
+                Player.tileTargetY -= shift.Y;
+            }
+        }
+
         public static Point16 Redirect(int x,int y)
         {
             TERedirector mined = FindByGuessing(x, y);
