@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -94,6 +95,7 @@ namespace MagiTronics.Tiles
                         }
                     }
                 }
+                if (checkModSeeds(point, item)) return point;
                 int createTile = item.createTile;
                 if(item.tileWand > -1)
                     createTile = item.tileWand;
@@ -185,7 +187,7 @@ namespace MagiTronics.Tiles
                     (!tile.HasTile || Main.tileCut[type]
                     || TileID.Sets.BreakableWhenPlacing[type]))
                 {
-                    
+
 
                     if(TileObjectData.CustomPlace(createTile, item.placeStyle))
                     {
@@ -333,6 +335,58 @@ namespace MagiTronics.Tiles
                 }
             }
             return target;
+        }
+
+        private bool checkModSeeds(Point16 p, Item item)
+        {
+            bool Match() {
+                return true;
+            }
+            if(item.ModItem == null) return false;
+            string name = item.ModItem.Name;
+            Tile tile = Main.tile[p.X, p.Y];
+            int type = tile.TileType;
+            ModTile modTile;
+            Mod mod = null;
+            bool Matches(string name)
+            {
+                if (mod.TryFind(name, out modTile) && type == modTile.Type)
+                    return true;
+                return false;
+            }
+            if (ModLoader.TryGetMod("Spooky", out mod))
+            {
+                
+                switch(name)
+                {
+                    case "CemeteryGrassSeeds":
+                        if(Matches("CemeteryDirt")) return true;
+                        break;
+                    case "MushroomMossSeeds":
+                        if (Matches("SpookyStone")) return true;
+                        break;
+                    case "SpookyMushGrassSeeds":
+                        if(Matches("SpookyMush")) return true;
+                        break;
+                    case "SpookySeedsGreen":
+                    case "SpookySeedsOrange":
+                        if(Matches("SpookyDirt")) return true;
+                        break;
+                }
+            }
+            if(ModLoader.TryGetMod("calamityMod", out mod))
+            {
+                switch (name)
+                {
+                    case "AstralGrassSeeds":
+                        if (Matches("AstralDirt")) return true;
+                        break;
+                    case "CinderBlossomSeeds":
+                        if (Matches("ScorchedRemains")) return !Main.tile[p.X, p.Y - 1].HasTile;
+                        break;
+                }
+            }
+            return false;
         }
 
         private void UpdateTarget()
