@@ -19,7 +19,7 @@ namespace MagiTronics.Tiles
                 Tile tile = Main.tile[Position.X, Position.Y];
                 tile.TileFrameX = onX;
                 SoundEngine.PlaySound(SoundID.Mech, new Vector2(Position.X, Position.Y));
-                if (Main.netMode == 2)
+                if (Main.netMode == NetmodeID.Server)
                 {
                     NetMessage.SendTileSquare(-1, base.Position.X, base.Position.Y);
                 }
@@ -42,7 +42,7 @@ namespace MagiTronics.Tiles
                 if(tile.TileFrameX != onX)
                 {
                     tile.TileFrameX = onX;
-                    if (Main.netMode == 2)
+                    if (Main.netMode == NetmodeID.Server)
                     {
                         NetMessage.SendTileSquare(-1, base.Position.X, base.Position.Y);
                     }

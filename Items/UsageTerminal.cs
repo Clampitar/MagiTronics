@@ -1,5 +1,4 @@
 ﻿using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -51,7 +50,12 @@ namespace MagiTronics.Items
                 int y = Player.tileTargetY;
 
                 if (MagitronicsWorld.AddData(new Terraria.DataStructures.Point16(x, y)))
+                {
                     player.inventory[ammoIndex].stack--;
+                    if(player.inventory[ammoIndex].stack < 1)
+                        player.inventory[ammoIndex].TurnToAir();
+
+                }
             }
 
             return true;
