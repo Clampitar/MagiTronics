@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -109,7 +108,8 @@ namespace MagiTronics.Tiles
                             return point;
                         }
                         else continue;
-                    }
+                    }                                  
+                    
                     switch(createTile)
                     {
 
@@ -229,6 +229,16 @@ namespace MagiTronics.Tiles
 
                             }
                             if (canPlace) return point;
+                        }
+                        if (createTile == TileID.Saplings)
+                        {
+                            if (!tileDown.HasTile)
+                            {
+                                tileDown = Main.tile[point.X, point.Y + 2];
+                                if (!tileDown.HasTile) continue;
+                            }
+                            if (TileLoader.CanGrowModTree(tileDown.TileType) || TileLoader.CanGrowModPalmTree(tileDown.TileType))
+                                return point;
                         }
                         continue;
                     }
