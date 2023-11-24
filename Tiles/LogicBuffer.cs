@@ -35,23 +35,8 @@ namespace MagiTronics.Tiles
 
         public override void HitWire(int i, int j)
         {
-            //Wiring.SkipWire(i, j);
-            Tile tileDown = Main.tile[i, j + 1];
-            if(tileDown.HasTile && tileDown.TileType == TileID.LogicGate)
-            {
-                int gateType = tileDown.TileFrameY / 18;
-                if(MagicWiring.SatisfiesGate(i, j-1, gateType))
-                {
-                    tileDown.TileFrameX = 18;
-                    Wiring.SkipWire(i, j + 1);
-                    Wiring.TripWire(i, j + 1, 1, 1);
-                }
-                else
-                {
-                    tileDown.TileFrameX = 0;
-                }
-            }
             Wiring.SkipWire(i, j);
+            MagicWiring.BuffersHit.Enqueue(new Point16(i, j));
         }
 
         public override bool TileFrame(int i, int j, ref bool resetFrame, ref bool noBreak)

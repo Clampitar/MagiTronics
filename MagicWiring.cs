@@ -27,32 +27,42 @@ namespace MagiTronics
 
         public static Queue<Point16> SignalsToCount = new Queue<Point16>();
 
-        private static List<Point16> signalsDone = new List<Point16>();
+        private static List<Point16> SignalsDone = new List<Point16>();
+        
+        public static Queue<Point16> BuffersHit = new Queue<Point16>();
+
+        private static List<Point16> BuffersDone = new List<Point16>();
 
         public static Random rand = new Random();
 
         public static void LogicPass()
         {
-            foreach(Point16 p in Wiring._LampsToCheck)
+            CountSignals();
+            foreach (Point16 p in Wiring._LampsToCheck)
             {
                 LogicBuffer.UpdatedLamp(p.X, p.Y);
             }
+            TripBuffers();
+        }
+
+        private static void CountSignals()
+        {
             Queue<Point16> lampsToTrip = new Queue<Point16>();
-            foreach(Point16 point in SignalsToCount)
+            foreach (Point16 point in SignalsToCount)
             {
-                if (signalsDone.Contains(point))
+                if (SignalsDone.Contains(point))
                 {
                     continue;
                 }
-                signalsDone.Add(point);
-                for (int lampY = point.Y - 1; lampY > Main.miniMapY; lampY--)
+                SignalsDone.Add(point);
+                for (int lampY = point.Y - 1; lampY > Main.mapMinY; lampY--)
                 {
                     Tile tile = Main.tile[point.X, lampY];
                     if (!tile.HasTile || tile.TileType != TileID.LogicGateLamp)
                     {
                         break;
                     }
-                    signalsDone.Add(new Point16(point.X, lampY));
+                    SignalsDone.Add(new Point16(point.X, lampY));
                     lampsToTrip.Enqueue(new Point16(point.X, lampY));
                     if (tile.TileFrameX == 0)
                     {
@@ -70,12 +80,43 @@ namespace MagiTronics
                     }
                 }
             }
-            foreach(Point16 point in lampsToTrip)
+            foreach (Point16 point in lampsToTrip)
             {
                 Wiring.TripWire(point.X, point.Y, 1, 1);
             }
             SignalsToCount.Clear();
-            signalsDone.Clear();
+            SignalsDone.Clear();
+        }
+
+        private static void TripBuffers()
+        {
+            Queue<Point16> GatesToTrip = new();
+            foreach(Point16 point in BuffersHit)
+            {
+                if (BuffersDone.Contains(point))
+                {
+                    continue;
+                }
+                BuffersDone.Add(point);
+                for(int gateY = point.Y + 1;  gateY < Main.mapMaxY; gateY++)
+                {
+                    Tile tile = Main.tile[point.X, gateY];
+                    if (!tile.HasTile || tile.TileType != TileID.LogicGate)
+                    {
+                        break;
+                    }
+                    if (tile.TileFrameX == 18)
+                    {
+                        GatesToTrip.Enqueue(new Point16(point.X, gateY));
+                    }
+                }
+            }
+            foreach (Point16 point in GatesToTrip)
+            {
+                Wiring.TripWire(point.X, point.Y, 1, 1);
+            }
+            BuffersHit.Clear();
+            BuffersDone.Clear();
         }
 
         public static bool shouldKillLamp(int x, int y)
