@@ -30,44 +30,7 @@ namespace MagiTronics.Tiles
                 Tile tileDown = Main.tile[point.X, point.Y + 1];
                 Tile tileUp = Main.tile[point.X, point.Y - 1];
 
-                if (Main.tileAxe[type])
-                {
-                    if (item.axe > 0)
-                    {
-                        return point;
-                    }
-                } else if (Main.tileHammer[type])
-                {
-                    if (item.hammer > 0) { return point; }
-                }
-                else if (WorldGen.CanKillTile(point.X, point.Y) && item.pick > 0)
-                {
-                    return point;
-                }
-                else if(item.hammer > 0 && tile.WallType > 0)
-                {
-                    return point;
-                }
-                switch (item.type)
-                {
-                    case ItemID.LawnMower:
-                        if (tile.HasUnactuatedTile && (type == TileID.Grass || type == TileID.HallowedGrass))
-                        {
-                            return point;
-                        }
-                        break;
-                    case ItemID.StaffofRegrowth:
-                    case ItemID.AcornAxe:
-                        switch(type)
-                        {
-                            case TileID.MatureHerbs:
-                            case TileID.BloomingHerbs:
-                            case TileID.Dirt:
-                                return point;
-                        }
-                        if (tile.HasTile) target = point;
-                        break;
-                }
+                if(checkTools(point, item)) return point;
                 if(item.createWall > -1)
                 {
                     if(WallLoader.CanPlace(point.X, point.Y, item.createWall) && Main.tile[point.X, point.Y].WallType != item.createWall)
@@ -345,6 +308,73 @@ namespace MagiTronics.Tiles
                 }
             }
             return target;
+        }
+
+        private bool checkTools(Point16 p, Item item)
+        {
+            Tile tile = Main.tile[p.X, p.Y];
+            ushort type = tile.TileType;
+            Item paint = paintLookup();
+            if (Main.tileAxe[type])
+            {
+                if (item.axe > 0)
+                {
+                    return true;
+                }
+            }
+            else if (Main.tileHammer[type])
+            {
+                if (item.hammer > 0) { return true; }
+            }
+            else if (WorldGen.CanKillTile(p.X, p.Y) && item.pick > 0)
+            {
+                return true;
+            }
+            else if (item.hammer > 0 && tile.WallType > 0)
+            {
+                return true;
+            }
+            switch (item.type)
+            {
+                case ItemID.LawnMower:
+                    return tile.HasUnactuatedTile && (type == TileID.Grass || type == TileID.HallowedGrass);
+                case ItemID.StaffofRegrowth:
+                case ItemID.AcornAxe:
+                    switch (type)
+                    {
+                        case TileID.MatureHerbs:
+                        case TileID.BloomingHerbs:
+                        case TileID.Dirt:
+                            return tile.HasTile;
+                    }
+                    break;
+                case ItemID.PaintRoller:
+                case ItemID.SpectrePaintRoller:
+                    return tile.WallType > 0 &&
+                        ((paint.paint != 0 && tile.WallColor != paint.paint)
+                        | (paint.paintCoating == PaintCoatingID.Glow && !tile.IsWallFullbright)
+                        | (paint.paintCoating == PaintCoatingID.Echo && !tile.IsWallInvisible));
+                case ItemID.Paintbrush:
+                case ItemID.SpectrePaintbrush:
+                    return tile.HasTile &&
+                        ((paint.PaintOrCoating && tile.TileColor != paint.paint)
+                        | (paint.paintCoating == 1 && !tile.IsTileFullbright)
+                        | (paint.paintCoating == 2 && !tile.IsTileInvisible));
+                case ItemID.PaintScraper:
+                case ItemID.SpectrePaintScraper:
+                    return (tile.HasTile && (
+                            Type == TileID.LongMoss || tile.TileColor > 0 ||
+                            tile.IsTileFullbright || tile.IsTileInvisible)) ||
+                            (tile.WallType != WallID.None && (
+                            tile.WallColor > 0 || tile.IsWallFullbright || tile.IsWallInvisible));
+            }
+            return false;
+
+        }
+
+        private Item paintLookup()
+        {
+            return Main.LocalPlayer.FindPaintOrCoating();
         }
 
         private bool checkModSeeds(Point16 p, Item item)
