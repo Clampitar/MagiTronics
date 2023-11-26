@@ -1,10 +1,7 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.GameContent;
 using Terraria.ID;
-using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 using MagiTronics.Tiles;
 using System;
@@ -35,6 +32,7 @@ namespace MagiTronics
 
         public static Random rand = new Random();
 
+
         public static void LogicPass()
         {
             CountSignals();
@@ -43,6 +41,11 @@ namespace MagiTronics
                 LogicBuffer.UpdatedLamp(p.X, p.Y);
             }
             TripBuffers();
+            if(BuffersHit.Count == 0)
+            {
+                XferWater();    
+            }
+
         }
 
         private static void CountSignals()
@@ -228,6 +231,11 @@ namespace MagiTronics
 
         public static void XferWater()
         {
+
+            if (BuffersHit.Count > 0)
+            {
+                return;
+            }
             if (addedPump)
             {
                 Wiring._numOutPump--;
@@ -244,7 +252,6 @@ namespace MagiTronics
                 }
                 addedPump = false;
             }
-
             if(_chestOutPump.Count > 0)
                 LiquidToChests();
             if(_chestInPump.Count > 0)
