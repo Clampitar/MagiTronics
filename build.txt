@@ -1,6 +1,6 @@
 displayName = MagiTronics
 author = Clampitar
-version = 0.4.2.0
+version = 0.4.3
 homepage = https://forums.terraria.org/index.php?threads/magitronics.127433/
 weakReferences = MagicStorage
 includeSource = true
