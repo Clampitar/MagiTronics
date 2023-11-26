@@ -15,9 +15,9 @@ namespace MagiTronics.Tiles
 
         public List<Point16> wiredTerminals = new();
 
-        public Point16 Target()
+        public Point16 Target(bool right, bool down)
         {
-            UpdateTarget();
+            UpdateTarget(right, down);
             Point16 target = Point16.NegativeOne;
             Item item = Main.LocalPlayer.HeldItem;
             if (item.IsAir) return target;
@@ -429,10 +429,24 @@ namespace MagiTronics.Tiles
             return false;
         }
 
-        private void UpdateTarget()
+        private void UpdateTarget(bool right, bool down)
         {
             workingTE = this;
             wiredTerminals.Clear();
+            if (right)
+                if (down)
+                    TerminalChecker.TripWire(Position.X + 1, Position.Y + 1, 1, 1);
+                else
+                    TerminalChecker.TripWire(Position.X + 1, Position.Y, 1, 1);
+            else
+            {
+                if (down)
+                    TerminalChecker.TripWire(Position.X, Position.Y + 1, 1, 1);
+                else
+                    TerminalChecker.TripWire(Position.X, Position.Y, 1, 1);
+            }
+                
+            
             TerminalChecker.TripWire(Position.X, Position.Y, 2, 2);
             workingTE = null;
         }
