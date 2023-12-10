@@ -63,4 +63,13 @@ Items: {
 		DisplayName: Logic sensor (Lonely)
 		Tooltip: Activates When it is seperate from any tiles or walls
 	}
+
+	ItemUsor: {
+		DisplayName: Item Usor
+		Tooltip:
+			'''
+			Uses items
+			Activated by wire
+			'''
+	}
 }

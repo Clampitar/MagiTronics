@@ -15,8 +15,8 @@ namespace MagiTronics.Tiles
             Main.tileLavaDeath[Type] = false;
             Main.tileNoAttach[Type] = true;
 
-            TileObjectData.newTile.LavaDeath = false;
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2x2);
+            TileObjectData.newTile.LavaDeath = false;
             TileObjectData.addTile(Type);
         }
 
