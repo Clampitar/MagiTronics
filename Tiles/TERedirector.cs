@@ -15,11 +15,13 @@ namespace MagiTronics.Tiles
 
         public List<Point16> wiredTerminals = new();
 
+        private Player autoPlayer;
         public Point16 Target(bool right, bool down)
         {
             UpdateTarget(right, down);
             Point16 target = Point16.NegativeOne;
-            Item item = Main.LocalPlayer.HeldItem;
+            //Item item = Main.LocalPlayer.HeldItem;
+            Item item = Player.HeldItem;
             if (item.IsAir) return target;
             foreach (Point16 point in wiredTerminals)
             {
@@ -42,7 +44,7 @@ namespace MagiTronics.Tiles
                         {
                             if (Main.tile[point.X, point.Y].WallType > 0)
                             {
-                                if (Main.LocalPlayer.TileReplacementEnabled
+                                if (Player.TileReplacementEnabled
                                     && WorldGen.NearFriendlyWall(point.X, point.Y)
                                     && !(Main.wallDungeon[Main.tile[point.X, point.Y].WallType] && !NPC.downedBoss3)
                                     && !(Main.tile[point.X, point.Y].WallType == WallID.LihzahrdBrickUnsafe && !NPC.downedGolemBoss))
@@ -97,9 +99,9 @@ namespace MagiTronics.Tiles
                                 return point;
                             break;
                         default:
-                            if(Main.LocalPlayer.TileReplacementEnabled)
+                            if(Player.TileReplacementEnabled)
                             {
-                                Item bestPickaxe = Main.LocalPlayer.GetBestPickaxe();
+                                Item bestPickaxe = Player.GetBestPickaxe();
                                 if (bestPickaxe != null
                                     && !WorldGen.WouldTileReplacementBeBlockedByLiquid(point.X, point.Y, LiquidID.Lava)
                                     && ItemID.Sets.SortingPriorityRopes[item.type] == -1
@@ -154,7 +156,7 @@ namespace MagiTronics.Tiles
 
                     if(TileObjectData.CustomPlace(createTile, item.placeStyle))
                     {
-                        if(TileObject.CanPlace(point.X, point.Y, createTile, item.placeStyle, Main.LocalPlayer.direction, out TileObject tileObject))
+                        if(TileObject.CanPlace(point.X, point.Y, createTile, item.placeStyle, Player.direction, out TileObject tileObject))
                         {
 
                             bool canPlace = true;
@@ -210,7 +212,7 @@ namespace MagiTronics.Tiles
                     {
 
 
-                        if ((!TileID.Sets.AllowLightInWater[Main.LocalPlayer.BiomeTorchHoldStyle(type)] || tile.LiquidType <= 0) &&
+                        if ((!TileID.Sets.AllowLightInWater[Player.BiomeTorchHoldStyle(type)] || tile.LiquidType <= 0) &&
                         (tile.WallType > 0 ||
                         (tileLeft.HasTile && (tileLeft.Slope == SlopeType.Solid || tileLeft.Slope == SlopeType.SlopeDownRight || tileLeft.Slope == SlopeType.SlopeUpRight) && ((Main.tileSolid[tileLeft.TileType] && !Main.tileNoAttach[tileLeft.TileType] && !Main.tileSolidTop[tileLeft.TileType] && !TileID.Sets.NotReallySolid[tileLeft.TileType]) || TileID.Sets.IsBeam[tileLeft.TileType] || (WorldGen.IsTreeType(tileLeft.TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X - 1, point.Y + 1].TileType))))
                         || (tileRight.HasTile && (tileRight.Slope == 0 || tileRight.Slope == SlopeType.SlopeDownLeft || tileRight.Slope == SlopeType.SlopeUpLeft) && ((Main.tileSolid[tileRight.TileType] && !Main.tileNoAttach[tileRight.TileType] && !Main.tileSolidTop[tileRight.TileType] && !TileID.Sets.NotReallySolid[tileRight.TileType]) || TileID.Sets.IsBeam[tileRight.TileType] || (WorldGen.IsTreeType(tileRight.TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y - 1].TileType) && WorldGen.IsTreeType(Main.tile[point.X + 1, point.Y + 1].TileType))))
@@ -314,7 +316,7 @@ namespace MagiTronics.Tiles
         {
             Tile tile = Main.tile[p.X, p.Y];
             ushort type = tile.TileType;
-            Item paint = paintLookup();
+            Item paint = Player.FindPaintOrCoating();
             if (Main.tileAxe[type])
             {
                 if (item.axe > 0)
@@ -370,11 +372,6 @@ namespace MagiTronics.Tiles
             }
             return false;
 
-        }
-
-        private Item paintLookup()
-        {
-            return Main.LocalPlayer.FindPaintOrCoating();
         }
 
         private bool checkModSeeds(Point16 p, Item item)
@@ -473,7 +470,10 @@ namespace MagiTronics.Tiles
                 // The "type" parameter refers to the tile type which placed the tile entity, so "Type" (the type of the tile entity) needs to be used here instead
                 NetMessage.SendData(MessageID.TileEntityPlacement, number: x, number2: y, number3: Type);
             }
-
+            if(type == ModContent.TileType<ItemUsor>())
+            {
+                autoPlayer = new Player();
+            }
             // ModTileEntity.Place() handles checking if the entity can be placed, then places it for you
             // Set "tileOrigin" to the same value you set TileObjectData.newTile.Origin to in the ModTile
             Point16 tileOrigin = new Point16(0, 1);
@@ -491,6 +491,7 @@ namespace MagiTronics.Tiles
 
         public static bool IsResting => workingTE is null;
 
-
+        public Player Player { get => autoPlayer ?? Main.LocalPlayer;
+            set => autoPlayer = value; }
     }
 }

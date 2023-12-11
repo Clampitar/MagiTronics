@@ -1,8 +1,8 @@
-﻿using Terraria.DataStructures;
-using Terraria;
+﻿using MagiTronics.Tiles;
 using System.Collections.Generic;
+using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
-using MagiTronics.Tiles;
 using Terraria.ModLoader;
 
 namespace MagiTronics
@@ -14,24 +14,32 @@ namespace MagiTronics
         private static Queue<Point16> BuffersToCheck;
         private static Queue<Point16> BuffersCurrent;
         private static Dictionary<Point16, bool> BuffersDone;
+        private static Dictionary<Point16, byte> _toProcess;
+        private static bool running;
+        private static DoubleStack<byte> _wireDirectionList;
+        private static DoubleStack<Point16> _wireList;
+        private static int _currentWireColor;
 
         public static void initialize()
         {
             BuffersToCheck = new Queue<Point16>();
             BuffersCurrent = new Queue<Point16>();
             BuffersDone = new Dictionary<Point16, bool>();
+            _toProcess = new Dictionary<Point16, byte>();
+            _wireDirectionList = new DoubleStack<byte>();
+            _wireList = new DoubleStack<Point16>();
         }
         public static void TripWire(int left, int top, int width, int height)
         {
             _wireSkip = new Dictionary<Point16, bool>();
-            Wiring.running = true;
-            if (Wiring._wireList.Count != 0)
+            running = true;
+            if (_wireList.Count != 0)
             {
-                Wiring._wireList.Clear(quickClear: true);
+                _wireList.Clear(quickClear: true);
             }
-            if (Wiring._wireDirectionList.Count != 0)
+            if (_wireDirectionList.Count != 0)
             {
-                Wiring._wireDirectionList.Clear(quickClear: true);
+                _wireDirectionList.Clear(quickClear: true);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -41,13 +49,13 @@ namespace MagiTronics
                     Tile tile = Main.tile[i, j];
                     if (tile != null && tile.RedWire)
                     {
-                        Wiring._wireList.PushBack(back);
+                        _wireList.PushBack(back);
                     }
                 }
             }
-            if (Wiring._wireList.Count > 0)
+            if (_wireList.Count > 0)
             {
-                HitWire(Wiring._wireList, 1);
+                HitWire(_wireList, 1);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -57,13 +65,13 @@ namespace MagiTronics
                     Tile tile = Main.tile[i, j];
                     if (tile != null && tile.GreenWire)
                     {
-                        Wiring._wireList.PushBack(back);
+                        _wireList.PushBack(back);
                     }
                 }
             }
-            if (Wiring._wireList.Count > 0)
+            if (_wireList.Count > 0)
             {
-                HitWire(Wiring._wireList, 2);
+                HitWire(_wireList, 2);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -73,13 +81,13 @@ namespace MagiTronics
                     Tile tile = Main.tile[i, j];
                     if (tile != null && tile.BlueWire)
                     {
-                        Wiring._wireList.PushBack(back);
+                        _wireList.PushBack(back);
                     }
                 }
             }
-            if (Wiring._wireList.Count > 0)
+            if (_wireList.Count > 0)
             {
-                HitWire(Wiring._wireList, 3);
+                HitWire(_wireList, 3);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -89,34 +97,34 @@ namespace MagiTronics
                     Tile tile = Main.tile[i, j];
                     if (tile != null && tile.YellowWire)
                     {
-                        Wiring._wireList.PushBack(back);
+                        _wireList.PushBack(back);
                     }
                 }
             }
-            if (Wiring._wireList.Count > 0)
+            if (_wireList.Count > 0)
             {
-                HitWire(Wiring._wireList, 4);
+                HitWire(_wireList, 4);
             }
-            Wiring.running = false;
+            running = false;
             bufferGatePass();
         }
 
         private static void HitWire(DoubleStack<Point16> next, int wireType)
         {
-            Wiring._wireDirectionList.Clear(quickClear: true);
+            _wireDirectionList.Clear(quickClear: true);
             for (int i = 0; i < next.Count; i++)
             {
                 Point16 point = next.PopFront();
                 _wireSkip[point] = true;
-                Wiring._toProcess.Add(point, 4);
+                _toProcess.Add(point, 4);
                 next.PushBack(point);
-                Wiring._wireDirectionList.PushBack(0);
+                _wireDirectionList.PushBack(0);
             }
             Wiring._currentWireColor = wireType;
             while (next.Count > 0)
             {
                 Point16 key = next.PopFront();
-                int num = Wiring._wireDirectionList.PopFront();
+                int num = _wireDirectionList.PopFront();
                 int x = key.X;
                 int y = key.Y;
                 HitWireSingle(key);
@@ -202,29 +210,29 @@ namespace MagiTronics
                         continue;
                     }
                     Point16 point2 = new Point16(num2, num3);
-                    if (Wiring._toProcess.TryGetValue(point2, out var value))
+                    if (_toProcess.TryGetValue(point2, out var value))
                     {
                         value--;
                         if (value == 0)
                         {
-                            Wiring._toProcess.Remove(point2);
+                            _toProcess.Remove(point2);
                         }
                         else
                         {
-                            Wiring._toProcess[point2] = value;
+                            _toProcess[point2] = value;
                         }
                         continue;
                     }
                     next.PushBack(point2);
-                    Wiring._wireDirectionList.PushBack((byte)j);
+                    _wireDirectionList.PushBack((byte)j);
                     if (b > 0)
                     {
-                        Wiring._toProcess.Add(point2, b);
+                        _toProcess.Add(point2, b);
                     }
                 }
             }
             _wireSkip.Clear();
-            Wiring._toProcess.Clear();
+            _toProcess.Clear();
 
         }
 
