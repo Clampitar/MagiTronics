@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Transactions;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -11,11 +12,11 @@ namespace MagiTronics.Tiles
     internal class TERedirector : ModTileEntity
     {
 
-        private static TERedirector workingTE;
+        protected static TERedirector workingTE;
 
         public List<Point16> wiredTerminals = new();
 
-        private Player autoPlayer;
+    
         public Point16 Target(bool right, bool down)
         {
             UpdateTarget(right, down);
@@ -426,7 +427,7 @@ namespace MagiTronics.Tiles
             return false;
         }
 
-        private void UpdateTarget(bool right, bool down)
+        virtual protected void UpdateTarget(bool right, bool down)
         {
             workingTE = this;
             wiredTerminals.Clear();
@@ -457,7 +458,7 @@ namespace MagiTronics.Tiles
         public override bool IsTileValidForEntity(int x, int y)
         {
             Tile tile = Main.tile[x, y];
-            return tile.HasTile && tile.TileType == ModContent.TileType<Redirector>();
+            return tile.HasTile && (tile.TileType == ModContent.TileType<Redirector>());
         }
 
 
@@ -469,10 +470,6 @@ namespace MagiTronics.Tiles
                 // Sync the placement of the tile entity with other clients
                 // The "type" parameter refers to the tile type which placed the tile entity, so "Type" (the type of the tile entity) needs to be used here instead
                 NetMessage.SendData(MessageID.TileEntityPlacement, number: x, number2: y, number3: Type);
-            }
-            if(type == ModContent.TileType<ItemUsor>())
-            {
-                autoPlayer = new Player();
             }
             // ModTileEntity.Place() handles checking if the entity can be placed, then places it for you
             // Set "tileOrigin" to the same value you set TileObjectData.newTile.Origin to in the ModTile
@@ -491,7 +488,6 @@ namespace MagiTronics.Tiles
 
         public static bool IsResting => workingTE is null;
 
-        public Player Player { get => autoPlayer ?? Main.LocalPlayer;
-            set => autoPlayer = value; }
+        public virtual Player Player => Main.LocalPlayer;
     }
 }
