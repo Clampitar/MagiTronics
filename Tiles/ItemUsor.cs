@@ -46,9 +46,13 @@ namespace MagiTronics.Tiles
 
         private void UseItem(Point16 point, Player player)
         {
+            int prevX = Player.tileTargetX;
+            int prevY = Player.tileTargetY;
             Player.tileTargetX = point.X;
             Player.tileTargetY = point.Y;
             player.ItemCheck();
+            Player.tileTargetX = prevX;
+            Player.tileTargetY = prevY;
         }
 
         public static Point16 Redirect(int x, int y)
