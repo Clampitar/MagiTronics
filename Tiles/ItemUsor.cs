@@ -24,7 +24,7 @@ namespace MagiTronics.Tiles
 
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
-            ModContent.GetInstance<TERedirector>().Kill(i, j);
+            ModContent.GetInstance<TEItemUsor>().Kill(i, j);
         }
 
         public override void HitWire(int x, int y)
@@ -36,23 +36,8 @@ namespace MagiTronics.Tiles
                 Wiring.SkipWire(x, y);
                 return;
             }
-            Point16 target = redirector.Target(redirector.Position.X != x, redirector.Position.Y != y);
-            if (target != Point16.NegativeOne)
-            {
-                UseItem(target, redirector.Player);
-            }
+            redirector.Player.controlUseItem = !redirector.Player.controlUseItem;
             Wiring.SkipWire(x, y);
-        }
-
-        private void UseItem(Point16 point, Player player)
-        {
-            int prevX = Player.tileTargetX;
-            int prevY = Player.tileTargetY;
-            Player.tileTargetX = point.X;
-            Player.tileTargetY = point.Y;
-            player.ItemCheck();
-            Player.tileTargetX = prevX;
-            Player.tileTargetY = prevY;
         }
 
         public static Point16 Redirect(int x, int y)
