@@ -14,7 +14,8 @@ namespace MagiTronics.Tiles
             Main.tileLavaDeath[Type] = false;
             Main.tileWaterDeath[Type] = false;
             Main.tileFrameImportant[Type] = true;
-            
+
+            RegisterItemDrop(ModContent.ItemType<Items.TickTimer>());
 
             TileObjectData.newTile.CopyFrom(TileObjectData.Style1x1);
             TileObjectData.newTile.LavaDeath = false;
