@@ -69,5 +69,11 @@ namespace MagiTronics.Tiles
             }
             return null;
         }
+
+        public override bool RightClick(int x, int y)
+        {
+            ModContent.GetInstance<MagitronicsWorld>().toggleUI();
+            return true;
+        }
     }
 }

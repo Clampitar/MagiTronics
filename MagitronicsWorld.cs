@@ -12,17 +12,71 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.GameContent;
 using Terraria.GameContent.UI;
+using MagiTronics.UI;
+using Terraria.UI;
 
 namespace MagiTronics
 {
     internal class MagitronicsWorld : ModSystem
     {
+        internal MenuBar MenuBar;
+        private UserInterface _menuBar;
 
         private static Point16 cursorTarget = Point16.NegativeOne;
 
         public static void SetCursorTarget() => cursorTarget = new Point16(Player.tileTargetX, Player.tileTargetY);
         public static void resetCursorTarget() => cursorTarget = Point16.NegativeOne;
 
+
+        public override void Load()
+        {
+            if (!Main.dedServ)
+            {
+                MenuBar = new MenuBar();
+                MenuBar.Activate();
+                _menuBar = new UserInterface();
+            }
+        }
+
+        public override void UpdateUI(GameTime gameTime)
+        {
+            _menuBar?.Update(gameTime);
+        }
+
+        public void toggleUI()
+        {
+            if (_menuBar != null)
+            {
+                _menuBar.SetState(_menuBar.CurrentState != null ? null : MenuBar);
+            }
+        }
+
+        public void ShowUI()
+        {
+            _menuBar?.SetState(MenuBar);
+        }
+
+        public void HideUI()
+        {
+            _menuBar?.SetState(null);
+        }
+
+        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
+        {
+            int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
+            if (mouseTextIndex != -1)
+            {
+                layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
+                    "YourMod: A Description",
+                    delegate
+                    {
+                        _menuBar.Draw(Main.spriteBatch, new GameTime());
+                        return true;
+                    },
+                    InterfaceScaleType.UI)
+                );
+            }
+        }
         public override void LoadWorldData(TagCompound tag)
         {
             modedActuators =  tag.Get<List<Point16>>("modedActuators");
