@@ -6,10 +6,12 @@ namespace MagiTronics.UI
 {
     internal class MenuBar : UIState
     {
-        public PlayButton icon;
+        public UsorInventory icon;
+
+        public Player Player { get => icon.Player; set => icon.Player = value; }
         public override void OnInitialize()
         {
-            icon = new PlayButton(new Item(ItemID.Abeemination));
+            icon = new UsorInventory();
 
             Append(icon);
         }

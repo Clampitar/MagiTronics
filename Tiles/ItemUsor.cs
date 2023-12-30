@@ -72,7 +72,13 @@ namespace MagiTronics.Tiles
 
         public override bool RightClick(int x, int y)
         {
-            ModContent.GetInstance<MagitronicsWorld>().toggleUI();
+            TEItemUsor iu = FindByGuessing(x, y);
+            if (iu != null)
+            {
+                //Main.LocalPlayer.tileEntityAnchor.Set(iu.ID, x, y);
+                ModContent.GetInstance<MagitronicsWorld>().toggleUI(iu.Player);
+            }
+
             return true;
         }
     }

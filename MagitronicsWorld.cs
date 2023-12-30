@@ -43,11 +43,22 @@ namespace MagiTronics
             _menuBar?.Update(gameTime);
         }
 
-        public void toggleUI()
+        public void toggleUI(Player usor)
         {
             if (_menuBar != null)
             {
-                _menuBar.SetState(_menuBar.CurrentState != null ? null : MenuBar);
+                if(_menuBar.CurrentState == null)
+                {
+                    MenuBar.Player = usor;
+                    _menuBar.SetState(MenuBar);
+                    Main.editChest = true;
+                }
+                else
+                {
+                    _menuBar.SetState(null);
+                    Main.editChest = false;
+                    Main.LocalPlayer.tileEntityAnchor.Clear();
+                }
             }
         }
 

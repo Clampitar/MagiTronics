@@ -1,8 +1,12 @@
 ﻿
+using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent.Achievements;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.UI;
 
 namespace MagiTronics.Tiles
 {
@@ -22,6 +26,63 @@ namespace MagiTronics.Tiles
         public Point16 Target()
         {
             return Target(false, false);
+        }
+
+        public override bool OverrideItemSlotLeftClick(Item[] inv, int context = 0, int slot = 0)
+        {
+            if (Main.mouseItem.maxStack <= 1 || inv[slot].type != Main.mouseItem.type || inv[slot].stack == inv[slot].maxStack || Main.mouseItem.stack == Main.mouseItem.maxStack)
+            {
+                Utils.Swap(ref inv[slot], ref Main.mouseItem);
+            }
+            /*if (inv[slot].stack > 0)
+            {
+                ItemSlot.AnnounceTransfer(new ItemTransferInfo(inv[slot], 21, context, inv[slot].stack));
+            }
+            else
+            {
+                ItemSlot.AnnounceTransfer(new ItemTransferInfo(Main.mouseItem, context, 21, Main.mouseItem.stack));
+            }*/
+            if (inv[slot].stack > 0)
+            {
+                switch (Math.Abs(context))
+                {
+                    case 0:
+                        AchievementsHelper.NotifyItemPickup(Main.LocalPlayer, inv[slot]);
+                        break;
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 16:
+                    case 17:
+                    case 25:
+                    case 27:
+                    case 33:
+                        AchievementsHelper.HandleOnEquip(Main.LocalPlayer, inv[slot], context);
+                        break;
+                }
+            }
+            if (inv[slot].type == 0 || inv[slot].stack < 1)
+            {
+                inv[slot] = new Item();
+            }
+
+            /*if (Main.mouseItem.IsTheSameAs(inv[slot]) && inv[slot].stack != inv[slot].maxStack && Main.mouseItem.stack != Main.mouseItem.maxStack && ItemLoader.TryStackItems(inv[slot], Main.mouseItem, out var numTransfered))
+            {
+                ItemSlot.AnnounceTransfer(new ItemTransferInfo(inv[slot], 21, context, numTransfered));
+            }*/
+            if (Main.mouseItem.type == 0 || Main.mouseItem.stack < 1)
+            {
+                Main.mouseItem = new Item();
+            }
+            if (Main.mouseItem.type > 0 || inv[slot].type > 0)
+            {
+                Recipe.FindRecipes();
+                SoundEngine.PlaySound(SoundID.Grab);
+            }
+
+            return true;
         }
 
         public override void Update()
