@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,8 @@ namespace MagiTronics.Tiles
         {
             List<Item> inv = usorPlayer.inventory.ToList();
             tag.Set("inv", inv);
+            Vector2 pos = usorPlayer.position;
+            tag.Set("pos", pos);
         }
 
         public override void LoadData(TagCompound tag)
@@ -42,6 +45,10 @@ namespace MagiTronics.Tiles
             {
                 IList<Item> list = tag.GetList<Item>("inv");
                 usorPlayer.inventory = [.. list];
+            }
+            if (tag.ContainsKey("pos"))
+            {
+                usorPlayer.position = tag.Get<Vector2>("pos");
             }
         }
         public override bool OverrideItemSlotLeftClick(Item[] inv, int context = 0, int slot = 0)

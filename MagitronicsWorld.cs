@@ -95,6 +95,7 @@ namespace MagiTronics
             texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
             cursorTarget = Point16.NegativeOne;
             TerminalChecker.initialize();
+            HideUI();
         }
 
         public override void SaveWorldData(TagCompound tag)
