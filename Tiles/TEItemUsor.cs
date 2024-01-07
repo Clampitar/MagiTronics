@@ -1,11 +1,14 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent.Achievements;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using Terraria.UI;
 
 namespace MagiTronics.Tiles
@@ -19,7 +22,6 @@ namespace MagiTronics.Tiles
             usorPlayer = new Player();
             usorPlayer.inventory[0] = new Item(ItemID.GoldBrick, 5);
             usorPlayer.selectedItem = 0;
-            usorPlayer.controlUseItem = true;
             usorPlayer.releaseUseItem = true;
         }
 
@@ -28,6 +30,20 @@ namespace MagiTronics.Tiles
             return Target(false, false);
         }
 
+        public override void SaveData(TagCompound tag)
+        {
+            List<Item> inv = usorPlayer.inventory.ToList();
+            tag.Set("inv", inv);
+        }
+
+        public override void LoadData(TagCompound tag)
+        {
+            if (tag.ContainsKey("inv"))
+            {
+                IList<Item> list = tag.GetList<Item>("inv");
+                usorPlayer.inventory = [.. list];
+            }
+        }
         public override bool OverrideItemSlotLeftClick(Item[] inv, int context = 0, int slot = 0)
         {
             if (Main.mouseItem.maxStack <= 1 || inv[slot].type != Main.mouseItem.type || inv[slot].stack == inv[slot].maxStack || Main.mouseItem.stack == Main.mouseItem.maxStack)

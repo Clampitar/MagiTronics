@@ -14,6 +14,7 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI;
 using MagiTronics.UI;
 using Terraria.UI;
+using MagiTronics.Tiles;
 
 namespace MagiTronics
 {
