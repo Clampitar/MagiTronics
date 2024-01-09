@@ -53,10 +53,7 @@ namespace MagiTronics
                 {
                     if (MenuBar.Player == usor)
                     {
-                        _menuBar.SetState(null);
-                        Main.editChest = false;
-                        Main.LocalPlayer.tileEntityAnchor.Clear();
-                        SoundEngine.PlaySound(SoundID.MenuClose);
+                        HideUI();
                     }
                     else
                     {
@@ -112,9 +109,20 @@ namespace MagiTronics
             SoundEngine.PlaySound(hadchestOpen || hadInvOpen ? SoundID.MenuTick : SoundID.MenuOpen);
         }
 
+        public void KilledUsor(Player usor)
+        {
+            if(MenuBar.Player == usor)
+            {
+                HideUI();
+            }
+        }
+
         public void HideUI()
         {
-            _menuBar?.SetState(null);
+            _menuBar.SetState(null);
+            Main.editChest = false;
+            Main.LocalPlayer.tileEntityAnchor.Clear();
+            SoundEngine.PlaySound(SoundID.MenuClose);
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)

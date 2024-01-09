@@ -25,6 +25,7 @@ namespace MagiTronics.Tiles
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
             ModContent.GetInstance<TEItemUsor>().Kill(i, j);
+            ModContent.GetInstance<MagitronicsWorld>().HideUI();
         }
 
         public override void HitWire(int x, int y)

@@ -245,6 +245,16 @@ namespace MagiTronics.Tiles
             return id;
         }
 
+        public override void OnKill()
+        {
+            foreach(Item item in usorPlayer.inventory)
+            {
+                if (!item.IsAir)
+                {
+                    usorPlayer.QuickSpawnItem(new EntitySource_Death(usorPlayer), item, item.stack);
+                }
+            }
+        }
         public override Player Player => usorPlayer;
     }
 }
