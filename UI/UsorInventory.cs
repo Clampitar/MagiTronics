@@ -34,7 +34,7 @@ namespace MagiTronics.UI
                         TextureAssets.InventoryBack.Height() * Main.inventoryScale) && !PlayerInput.IgnoreMouseInterface)
                     {
                         Main.LocalPlayer.mouseInterface = true;
-                        ItemSlot.Handle(inv, context, slot);
+                        ItemSlot.Handle(inv, ItemSlot.Context.ChestItem, slot);
 
                     }
                     ItemSlot.Draw(spriteBatch, inv, context, slot, new Vector2(num, num2));
