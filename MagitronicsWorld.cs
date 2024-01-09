@@ -15,6 +15,7 @@ using Terraria.GameContent.UI;
 using MagiTronics.UI;
 using Terraria.UI;
 using MagiTronics.Tiles;
+using Terraria.Localization;
 
 namespace MagiTronics
 {
@@ -48,24 +49,67 @@ namespace MagiTronics
         {
             if (_menuBar != null)
             {
-                if(_menuBar.CurrentState == null)
+                if (_menuBar.CurrentState != null)
                 {
-                    MenuBar.Player = usor;
-                    _menuBar.SetState(MenuBar);
-                    Main.editChest = true;
+                    if (MenuBar.Player == usor)
+                    {
+                        _menuBar.SetState(null);
+                        Main.editChest = false;
+                        Main.LocalPlayer.tileEntityAnchor.Clear();
+                        SoundEngine.PlaySound(SoundID.MenuClose);
+                    }
+                    else
+                    {
+                        OpenUI(usor, true);
+                    }
                 }
                 else
                 {
-                    _menuBar.SetState(null);
-                    Main.editChest = false;
-                    Main.LocalPlayer.tileEntityAnchor.Clear();
+                    OpenUI(usor, false);
                 }
             }
         }
 
-        public void ShowUI()
+        private void OpenUI(Player usor, bool hadInvOpen)
         {
-            _menuBar?.SetState(MenuBar);
+            Player player = Main.LocalPlayer;
+            MenuBar.Player = usor;
+            _menuBar.SetState(MenuBar);
+            //credits to blueshiemagic's Magic Storage for the following
+            Main.mouseRightRelease = false;
+            if (player.sign > -1)
+            {
+                SoundEngine.PlaySound(SoundID.MenuClose);
+                player.sign = -1;
+                Main.editSign = false;
+                Main.npcChatText = string.Empty;
+            }
+
+            if (Main.editChest)
+            {
+                SoundEngine.PlaySound(SoundID.MenuTick);
+                Main.editChest = false;
+                Main.npcChatText = string.Empty;
+            }
+
+            if (player.editedChestName)
+            {
+                NetMessage.SendData(MessageID.SyncPlayerChest, -1, -1, NetworkText.FromLiteral(Main.chest[player.chest].name), player.chest, 1f);
+                player.editedChestName = false;
+            }
+
+            if (player.talkNPC > -1)
+            {
+                player.SetTalkNPC(-1);
+                Main.npcChatCornerItem = 0;
+                Main.npcChatText = string.Empty;
+            }
+            bool hadchestOpen = player.chest != -1;
+            player.chest = -1;
+            player.chestX = (int)(usor.position.X / 16);
+            player.chestY = (int)(usor.position.Y / 16);
+            Main.playerInventory = true;
+            SoundEngine.PlaySound(hadchestOpen || hadInvOpen ? SoundID.MenuTick : SoundID.MenuOpen);
         }
 
         public void HideUI()
