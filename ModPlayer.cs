@@ -36,5 +36,11 @@ namespace MagiTronics
             Player.tileRangeY -= Math.Abs(shift.Y);
             shift = Point16.Zero;
         }
+
+        public override void PostUpdate()
+        {
+            ModContent.GetInstance<MagitronicsWorld>().checkValidUI(this.Player);
+        }
+
     }
 }

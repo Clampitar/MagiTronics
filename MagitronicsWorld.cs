@@ -16,6 +16,7 @@ using MagiTronics.UI;
 using Terraria.UI;
 using MagiTronics.Tiles;
 using Terraria.Localization;
+using System;
 
 namespace MagiTronics
 {
@@ -114,6 +115,30 @@ namespace MagiTronics
             if(MenuBar.Player == usor)
             {
                 HideUI();
+            }
+        }
+
+        public void checkValidUI(Player player)
+        {
+            if(_menuBar.CurrentState != null)
+            {
+                if(player.chest != -1)
+                {
+                    HideUI();
+                    return;
+                }
+                int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
+                int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
+                Vector2 pos = MenuBar.Player.position;
+                Rectangle rect = new Rectangle((int)(pos.X), (int)(pos.Y), 32, 32);//temp
+                rect.Inflate(-1, -1);
+                Point point = rect.ClosestPointInRect(player.Center).ToTileCoordinates();
+                int chestPointX = point.X;
+                int chestPointY = point.Y;
+                if (playerX < chestPointX - Player.tileRangeX || playerX > chestPointX + Player.tileRangeX + 1 || playerY < chestPointY - Player.tileRangeY || playerY > chestPointY + Player.tileRangeY)
+                {
+                    HideUI();
+                }
             }
         }
 
