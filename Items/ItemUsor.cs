@@ -8,14 +8,7 @@ namespace MagiTronics.Items
     {
         public override void SetDefaults()
         {
-            Item.maxStack = 9999;
-            Item.useTurn = true;
-            Item.autoReuse = false;
-            Item.useAnimation = 15;
-            Item.useTime = 10;
-            Item.useStyle = ItemUseStyleID.Swing;
-            Item.consumable = true;
-            Item.createTile = ModContent.TileType<Tiles.ItemUsor>();
+            Item.DefaultToPlaceableTile(ModContent.TileType<Tiles.ItemUsor>());
             Item.mech = true;
         }
     }

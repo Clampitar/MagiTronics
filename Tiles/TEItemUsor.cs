@@ -21,7 +21,6 @@ namespace MagiTronics.Tiles
         public TEItemUsor()
         {
             usorPlayer = new Player();
-            usorPlayer.inventory[0] = new Item(ItemID.GoldBrick, 5);
             usorPlayer.selectedItem = 0;
             usorPlayer.releaseUseItem = true;
         }
