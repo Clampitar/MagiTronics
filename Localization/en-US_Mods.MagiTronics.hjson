@@ -72,4 +72,14 @@ Items: {
 			Activated by wire
 			'''
 	}
+
+	AutoPicker: {
+		DisplayName: Auto Picker
+		Tooltip: 
+			'''
+			Not a crafting station
+			70% pickaxe power
+			Mines tiles automatically
+			'''
+	}
 }
