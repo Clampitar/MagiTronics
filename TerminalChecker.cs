@@ -29,8 +29,9 @@ namespace MagiTronics
             _wireDirectionList = new DoubleStack<byte>();
             _wireList = new DoubleStack<Point16>();
         }
-        public static void TripWire(int left, int top, int width, int height)
+        public static List<Point16> TripWire(int left, int top, int width, int height)
         {
+            List<Point16> wiredTerminals = [];
             _wireSkip = new Dictionary<Point16, bool>();
             running = true;
             if (_wireList.Count != 0)
@@ -55,7 +56,7 @@ namespace MagiTronics
             }
             if (_wireList.Count > 0)
             {
-                HitWire(_wireList, 1);
+                HitWire(_wireList, 1,ref wiredTerminals);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -71,7 +72,7 @@ namespace MagiTronics
             }
             if (_wireList.Count > 0)
             {
-                HitWire(_wireList, 2);
+                HitWire(_wireList, 2,ref wiredTerminals);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -87,7 +88,7 @@ namespace MagiTronics
             }
             if (_wireList.Count > 0)
             {
-                HitWire(_wireList, 3);
+                HitWire(_wireList, 3,ref wiredTerminals);
             }
             for (int i = left; i < left + width; i++)
             {
@@ -103,14 +104,16 @@ namespace MagiTronics
             }
             if (_wireList.Count > 0)
             {
-                HitWire(_wireList, 4);
+                HitWire(_wireList, 4,ref wiredTerminals);
             }
             running = false;
-            bufferGatePass();
+            bufferGatePass(ref wiredTerminals);
+            return wiredTerminals;
         }
 
-        private static void HitWire(DoubleStack<Point16> next, int wireType)
+        private static void HitWire(DoubleStack<Point16> next, int wireType,ref List<Point16> wiredTerminals)
         {
+            //List<Point16> wiredTerminals = [];
             _wireDirectionList.Clear(quickClear: true);
             for (int i = 0; i < next.Count; i++)
             {
@@ -127,7 +130,7 @@ namespace MagiTronics
                 int num = _wireDirectionList.PopFront();
                 int x = key.X;
                 int y = key.Y;
-                HitWireSingle(key);
+                HitWireSingle(key, ref wiredTerminals);
                 for (int j = 0; j < 4; j++)
                 {
                     int num2;
@@ -233,14 +236,13 @@ namespace MagiTronics
             }
             _wireSkip.Clear();
             _toProcess.Clear();
-
         }
 
-        private static void HitWireSingle(Point16 key)
+        private static void HitWireSingle(Point16 key, ref List<Point16> wiredTerminals)
         {
             if (MagitronicsWorld.modedActuators.Contains(key))
             {
-                TERedirector.registerTerminal(key);
+                wiredTerminals.Add(key);
             }
             Tile tile = Main.tile[key.X, key.Y];
             if (!tile.HasTile) return;
@@ -249,7 +251,7 @@ namespace MagiTronics
                 BuffersToCheck.Enqueue(key);
             }
         }
-        private static void bufferGatePass()
+        private static void bufferGatePass(ref List<Point16> wiredTerminals)
         {
             if(BuffersCurrent.Count > 0)
             {
@@ -275,7 +277,7 @@ namespace MagiTronics
                         if (MagicWiring.SatisfiesGate(point.X, point.Y - 1, gateType))
                         {
                             tileDown.TileFrameX = 18;
-                            TripWire(point.X, point.Y + 1, 1, 1);
+                            wiredTerminals.AddRange(TripWire(point.X, point.Y + 1, 1, 1));
                         }
                         else
                         {

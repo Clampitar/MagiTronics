@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Transactions;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -11,8 +10,6 @@ namespace MagiTronics.Tiles
 {
     internal class TERedirector : ModTileEntity
     {
-
-        protected static TERedirector workingTE;
 
         public List<Point16> wiredTerminals = new();
 
@@ -353,13 +350,13 @@ namespace MagiTronics.Tiles
                     break;
                 case ItemID.PaintRoller:
                 case ItemID.SpectrePaintRoller:
-                    return tile.WallType > 0 &&
+                    return tile.WallType > 0 && paint != null &&
                         ((paint.paint != 0 && tile.WallColor != paint.paint)
                         | (paint.paintCoating == PaintCoatingID.Glow && !tile.IsWallFullbright)
                         | (paint.paintCoating == PaintCoatingID.Echo && !tile.IsWallInvisible));
                 case ItemID.Paintbrush:
                 case ItemID.SpectrePaintbrush:
-                    return tile.HasTile &&
+                    return tile.HasTile && paint != null &&
                         ((paint.PaintOrCoating && tile.TileColor != paint.paint)
                         | (paint.paintCoating == 1 && !tile.IsTileFullbright)
                         | (paint.paintCoating == 2 && !tile.IsTileInvisible));
@@ -429,29 +426,21 @@ namespace MagiTronics.Tiles
 
         virtual protected void UpdateTarget(bool right, bool down)
         {
-            workingTE = this;
-            wiredTerminals.Clear();
             if (right)
                 if (down)
-                    TerminalChecker.TripWire(Position.X + 1, Position.Y + 1, 1, 1);
+                    wiredTerminals = TerminalChecker.TripWire(Position.X + 1, Position.Y + 1, 1, 1);
                 else
-                    TerminalChecker.TripWire(Position.X + 1, Position.Y, 1, 1);
+                    wiredTerminals = TerminalChecker.TripWire(Position.X + 1, Position.Y, 1, 1);
             else
             {
                 if (down)
-                    TerminalChecker.TripWire(Position.X, Position.Y + 1, 1, 1);
+                    wiredTerminals = TerminalChecker.TripWire(Position.X, Position.Y + 1, 1, 1);
                 else
-                    TerminalChecker.TripWire(Position.X, Position.Y, 1, 1);
+                    wiredTerminals = TerminalChecker.TripWire(Position.X, Position.Y, 1, 1);
             }
-                
-            
-            TerminalChecker.TripWire(Position.X, Position.Y, 2, 2);
-            workingTE = null;
-        }
 
-        public static void registerTerminal(Point16 p)
-        {
-            workingTE?.wiredTerminals.Add(p);
+
+            wiredTerminals.AddRange(TerminalChecker.TripWire(Position.X, Position.Y, 2, 2));
         }
 
 
@@ -486,7 +475,6 @@ namespace MagiTronics.Tiles
             }
         }
 
-        public static bool IsResting => workingTE is null;
 
         public virtual Player Player => Main.LocalPlayer;
     }

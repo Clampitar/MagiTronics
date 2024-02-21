@@ -222,12 +222,7 @@ namespace MagiTronics.Tiles
         }
         override protected void UpdateTarget(bool right, bool down)
         {
-            workingTE = this;
-            wiredTerminals.Clear();
-            _ = ID;
-            TerminalChecker.TripWire(Position.X, Position.Y+1, 2, 3);
-            _ = usorPlayer.position;
-            workingTE = null;
+            wiredTerminals = TerminalChecker.TripWire(Position.X, Position.Y+1, 2, 3);
         }
 
         public override bool IsTileValidForEntity(int x, int y)
