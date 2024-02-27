@@ -13,7 +13,15 @@ namespace MagiTronics.Tiles
         private int useTime = 0;
 
         static readonly int power = new Item(ItemID.DeathbringerPickaxe).pick;
-        enum Direction
+
+        private delegate bool MapCondition(Point16 p);
+
+        MapCondition InMap;
+
+        private delegate Point16 SearchDirection(int i = 1);
+
+        SearchDirection Go;
+        public enum Direction
         {
             STOP = 0,
             UP = 1,
@@ -22,8 +30,12 @@ namespace MagiTronics.Tiles
             LEFT = 4
         }
 
-        private Direction dir = Direction.DOWN;
+        private Direction dir = Direction.STOP;
 
+        public TEAutoPicker()
+        {
+            ChangeDir(Direction.STOP);
+        }
         public override bool IsTileValidForEntity(int x, int y)
         {
             Tile tile = Main.tile[x, y];
@@ -40,24 +52,51 @@ namespace MagiTronics.Tiles
             }
         }
 
+        public void ChangeDir(Direction direction)
+        {
+            dir = direction;
+            switch (direction)
+            {
+                case Direction.STOP:
+                    InMap = (Point16 p) => false;
+                    break;
+                case Direction.UP:
+                    InMap = (Point16 p) => p.Y > 0;
+                    Go = (int i = 1) => new Point16(0, -i);
+                    break;
+                case Direction.RIGHT:
+                    InMap = (Point16 p) => p.X < Main.maxTilesX;
+                    Go = (int i = 1) => new Point16(i, 0);
+                    break;
+                case Direction.DOWN:
+                    InMap = (Point16 p) => p.Y < Main.maxTilesY;
+                    Go = (int i = 1) => new Point16(0, i);
+                    break;
+                case Direction.LEFT:
+                    InMap = (Point16 p) => p.X > 0;
+                    Go = (int i = 1) => new Point16(-i, 0);
+                    break;
+            }
+        }
+
         private void Pick()
         {
             if (dir == Direction.STOP) { return; }
             List<Point16> terminals = TerminalChecker.TripWire(Position.X, Position.Y, 3, 3);
-            int mindepth = Main.maxTilesX;
+            int mindepth = -1;
             Point16 p = Point16.NegativeOne;
             foreach (Point16 terminal in terminals)
             {
                 int depth = pickterminal(terminal);
-                if(depth < mindepth)
+                if (depth >= 0 && (depth < mindepth || mindepth == -1))
                 {
                     mindepth = depth;
                     p = terminal;
                 }
             }
-            if(p!= Point16.NegativeOne)
+            if(p!= Point16.NegativeOne && mindepth != -1)
             {
-                GoDown(ref p, mindepth);
+                p += Go(mindepth);
                 usorPlayer.PickTile(p.X, p.Y, power);
             }
         }
@@ -73,11 +112,10 @@ namespace MagiTronics.Tiles
                     return depth;
                 }
                 depth++;
-                GoDown(ref terminal);
-            } while (terminal.Y < Main.maxTilesY);
+                terminal += Go();
+            } while (InMap(terminal));
             return -1;
         }
 
-        void GoDown(ref Point16 p, int i = 1) => p -= new Point16(0, -i);
     }
 }

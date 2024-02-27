@@ -20,6 +20,11 @@ namespace MagiTronics.Tiles
             TileObjectData.addTile(Type);
         }
 
+        public override void KillMultiTile(int i, int j, int frameX, int frameY)
+        {
+            ModContent.GetInstance<TEAutoPicker>().Kill(i, j);
+        }
+
         public override void HitWire(int i, int j)
         {
             TerminalChecker.TripWire(i, j, 1, 1);
