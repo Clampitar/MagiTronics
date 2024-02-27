@@ -14,12 +14,15 @@ namespace MagiTronics.Tiles
 
             TileObjectData.newTile.CopyFrom(TileObjectData.Style3x3);
             TileObjectData.newTile.LavaDeath = false;
+            TileObjectData.newTile.Origin = new Terraria.DataStructures.Point16(0, 1);
+            TileObjectData.newTile.HookPostPlaceMyPlayer = new Terraria.DataStructures.PlacementHook(ModContent.GetInstance<TEAutoPicker>().Hook_AfterPlacement, -1, 0, false);
+            TileObjectData.newTile.UsesCustomCanPlace = true;
             TileObjectData.addTile(Type);
         }
 
         public override void HitWire(int i, int j)
         {
-            base.HitWire(i, j);
+            TerminalChecker.TripWire(i, j, 1, 1);
         }
     }
 }

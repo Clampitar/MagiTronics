@@ -16,7 +16,7 @@ namespace MagiTronics.Tiles
 {
     internal class TEItemUsor : TERedirector
     {
-        private Player usorPlayer;
+        protected Player usorPlayer;
 
         public TEItemUsor()
         {
