@@ -22,8 +22,11 @@ namespace MagiTronics
 {
     internal class MagitronicsWorld : ModSystem
     {
-        internal MenuBar MenuBar;
+        internal AutoUsorUI MenuBar;
         private UserInterface _menuBar;
+
+        private PickerUI PickerUI;
+        private UserInterface _pickerInterface;
 
         private static Point16 cursorTarget = Point16.NegativeOne;
 
@@ -35,18 +38,22 @@ namespace MagiTronics
         {
             if (!Main.dedServ)
             {
-                MenuBar = new MenuBar();
+                MenuBar = new AutoUsorUI();
                 MenuBar.Activate();
                 _menuBar = new UserInterface();
+                PickerUI = new PickerUI();
+                PickerUI.Activate();
+                _pickerInterface = new UserInterface();
             }
         }
 
         public override void UpdateUI(GameTime gameTime)
         {
             _menuBar?.Update(gameTime);
+            _pickerInterface?.Update(gameTime);
         }
 
-        public void toggleUI(Player usor)
+        public void ToggleUI(Player usor)
         {
             if (_menuBar != null)
             {
@@ -54,7 +61,7 @@ namespace MagiTronics
                 {
                     if (MenuBar.Player == usor)
                     {
-                        HideUI();
+                        CloseUsorInventory();
                     }
                     else
                     {
@@ -64,6 +71,28 @@ namespace MagiTronics
                 else
                 {
                     OpenUI(usor, false);
+                }
+            }
+        }
+
+        public void ToggleUI(TEAutoPicker autoPicker)
+        {
+            if(_pickerInterface != null)
+            {
+                if (_pickerInterface.CurrentState != null)
+                {
+                    if(PickerUI.AutoPicker == autoPicker)
+                    {
+                        CloseAutoPickerInterface();
+                    }
+                    else
+                    {
+                        OpenUI(autoPicker);
+                    }
+                }
+                else
+                {
+                    OpenUI(autoPicker);
                 }
             }
         }
@@ -110,11 +139,18 @@ namespace MagiTronics
             SoundEngine.PlaySound(hadchestOpen || hadInvOpen ? SoundID.MenuTick : SoundID.MenuOpen);
         }
 
+        private void OpenUI(TEAutoPicker picker)
+        {
+            PickerUI.AutoPicker = picker;
+            _pickerInterface.SetState(PickerUI);
+            SoundEngine.PlaySound(SoundID.MenuTick);
+        }
+
         public void KilledUsor(Player usor)
         {
             if(MenuBar.Player == usor)
             {
-                HideUI();
+                CloseUsorInventory();
             }
         }
 
@@ -124,7 +160,7 @@ namespace MagiTronics
             {
                 if(player.chest != -1)
                 {
-                    HideUI();
+                    CloseUsorInventory();
                     return;
                 }
                 int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
@@ -137,17 +173,23 @@ namespace MagiTronics
                 int chestPointY = point.Y;
                 if (playerX < chestPointX - Player.tileRangeX || playerX > chestPointX + Player.tileRangeX + 1 || playerY < chestPointY - Player.tileRangeY || playerY > chestPointY + Player.tileRangeY)
                 {
-                    HideUI();
+                    CloseUsorInventory();
                 }
             }
         }
 
-        public void HideUI()
+        public void CloseUsorInventory()
         {
             _menuBar.SetState(null);
             Main.editChest = false;
             Main.LocalPlayer.tileEntityAnchor.Clear();
             SoundEngine.PlaySound(SoundID.MenuClose);
+        }
+
+        public void CloseAutoPickerInterface()
+        {
+            _pickerInterface.SetState(null);
+            SoundEngine.PlaySound(SoundID.MenuTick);
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
@@ -160,6 +202,7 @@ namespace MagiTronics
                     delegate
                     {
                         _menuBar.Draw(Main.spriteBatch, new GameTime());
+                        _pickerInterface.Draw(Main.spriteBatch, new GameTime());
                         return true;
                     },
                     InterfaceScaleType.UI)
@@ -172,7 +215,7 @@ namespace MagiTronics
             texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
             cursorTarget = Point16.NegativeOne;
             TerminalChecker.initialize();
-            HideUI();
+            CloseUsorInventory();
         }
 
         public override void SaveWorldData(TagCompound tag)
@@ -184,7 +227,7 @@ namespace MagiTronics
 
         public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
 
-        private static Vector2 AdjustPosition(Vector2 renderPosition)
+        public static Vector2 AdjustPosition(Vector2 renderPosition)
         {
             Vector2 cameradistance = renderPosition - Main.Camera.Center;
             renderPosition -= Main.screenPosition;

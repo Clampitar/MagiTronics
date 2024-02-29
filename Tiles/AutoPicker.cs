@@ -1,6 +1,7 @@
 ﻿using Terraria.ModLoader;
 using Terraria;
 using Terraria.ObjectData;
+using Terraria.DataStructures;
 
 namespace MagiTronics.Tiles
 {
@@ -25,9 +26,31 @@ namespace MagiTronics.Tiles
             ModContent.GetInstance<TEAutoPicker>().Kill(i, j);
         }
 
-        public override void HitWire(int i, int j)
+        public override bool RightClick(int x, int y)
         {
-            TerminalChecker.TripWire(i, j, 1, 1);
+            TEAutoPicker ap = FindByGuessing(x, y);
+            if (ap != null)
+            {
+                Main.LocalPlayer.tileEntityAnchor.Set(ap.ID, x, y);
+                ModContent.GetInstance<MagitronicsWorld>().ToggleUI(ap);
+                return true;
+            }
+            return false;
+        }
+
+        public static TEAutoPicker FindByGuessing(int x, int y)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (TileEntity.ByPosition.TryGetValue(new Point16(x - i, y - j), out var value) && value is TEAutoPicker)
+                    {
+                        return (TEAutoPicker)value;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

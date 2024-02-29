@@ -87,7 +87,7 @@ namespace MagiTronics.Tiles
             Point16 p = Point16.NegativeOne;
             foreach (Point16 terminal in terminals)
             {
-                int depth = pickterminal(terminal);
+                int depth = Pickterminal(terminal);
                 if (depth >= 0 && (depth < mindepth || mindepth == -1))
                 {
                     mindepth = depth;
@@ -101,13 +101,14 @@ namespace MagiTronics.Tiles
             }
         }
 
-        private int pickterminal(Point16 terminal)
+        private int Pickterminal(Point16 terminal)
         {
             int depth = 0;
             do
             {
                 Tile tile = Main.tile[terminal.X, terminal.Y];
-                if(tile.HasTile && WorldGen.CanPoundTile(terminal.X, terminal.Y))
+                int type = tile.TileType;
+                if (tile.HasTile && WorldGen.CanKillTile(terminal.X, terminal.Y) && !Main.tileHammer[type] && !Main.tileAxe[type])
                 {
                     return depth;
                 }
