@@ -4,18 +4,21 @@ using Terraria;
 using Terraria.UI;
 using Microsoft.Xna.Framework;
 using MagiTronics.Tiles;
+using Terraria.GameContent.UI.Elements;
+using ReLogic.Content;
+using MagiTronics.Items;
+using System;
 
 namespace MagiTronics.UI
 {
-    internal class AutoPickerInterface : UIElement
+    internal class AutoPickerInterface : UIImageButton
     {
-        Color color = new(255, 255, 255);
-        
 
-        public TEAutoPicker te;
-        public override void Draw(SpriteBatch spriteBatch)
+
+        public AutoPickerInterface(Asset<Texture2D> texture) : base(texture)
         {
-            spriteBatch.Draw((Texture2D)ModContent.Request<Texture2D>("Terraria/Images/UI/TexturePackButtons"), MagitronicsWorld.AdjustPosition(te.Player.position), color);
-        }//"C:\Users\clamp\Documents\My Games\Terraria\Images\Images\UI\TexturePackButtons.png"
+        }
+
+        
     }
 }
