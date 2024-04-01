@@ -11,14 +11,13 @@ using System;
 
 namespace MagiTronics.UI
 {
-    internal class AutoPickerInterface : UIImageButton
+    internal class AutoPickerInterface : UIPanel
     {
-
-
-        public AutoPickerInterface(Asset<Texture2D> texture) : base(texture)
+        public TEAutoPicker.Direction direction;
+        public AutoPickerInterface(TEAutoPicker.Direction direction) : base()
         {
+            this.direction = direction;
         }
 
-        
     }
 }
