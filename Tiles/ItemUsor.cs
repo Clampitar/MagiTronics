@@ -45,23 +45,8 @@ namespace MagiTronics.Tiles
                 Wiring.SkipWire(x, y);
                 return;
             }
-            redirector.Player.controlUseItem = !redirector.Player.controlUseItem;
+            redirector.Player.controlUseItem = true;
             Wiring.SkipWire(x, y);
-        }
-
-        public static Point16 Redirect(int x, int y)
-        {
-            TERedirector mined = FindByGuessing(x, y);
-            if (mined is null)
-                return Point16.Zero;
-            Point16 target = mined.Target(mined.Position.X != x, mined.Position.Y != y);
-            if (target != Point16.NegativeOne)
-            {
-                x = target.X - x;
-                y = target.Y - y;
-                return new Point16(x, y);
-            }
-            return Point16.Zero;
         }
 
         public static TEItemUsor FindByGuessing(int x, int y)

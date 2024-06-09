@@ -204,20 +204,22 @@ namespace MagiTronics.Tiles
         public override void Update()
         {
             Point16 target = Target();
-            int prevX = Player.tileTargetX;
-            int prevY = Player.tileTargetY;
+            
             if (target != Point16.NegativeOne)
             {
+                int prevX = Player.tileTargetX;
+                int prevY = Player.tileTargetY;
                 Player.tileTargetX = target.X;
                 Player.tileTargetY = target.Y;
-            } else
-            {
-                Player.controlUseItem = false;
-            }
-            Player.ItemCheck();
-
-            Player.tileTargetX = prevX;
-            Player.tileTargetY = prevY;
+                Player.tileRangeX += Main.maxTilesX;
+                Player.tileRangeY += Main.maxTilesY;
+                Player.ItemCheck();
+                Player.tileRangeX -= Main.maxTilesX;
+                Player.tileRangeY -= Main.maxTilesY;
+                Player.tileTargetX = prevX;
+                Player.tileTargetY = prevY;
+            } 
+            
             Player.controlUseItem = false;
         }
         override protected void UpdateTarget(bool right, bool down)

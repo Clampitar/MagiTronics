@@ -202,7 +202,7 @@ namespace MagiTronics
                     delegate
                     {
                         _menuBar.Draw(Main.spriteBatch, new GameTime());
-                        _pickerInterface.Draw(Main.spriteBatch, new GameTime());
+                        //_pickerInterface.Draw(Main.spriteBatch, new GameTime());
                         return true;
                     },
                     InterfaceScaleType.UI)
@@ -244,6 +244,7 @@ namespace MagiTronics
             Main.spriteBatch.Begin();
             Main.tileBatch.Begin();
             Vector2 zoom = Main.GameViewMatrix.Zoom;
+            _pickerInterface.Draw(Main.spriteBatch, new GameTime());
             if (cursorTarget != Point16.NegativeOne)
             {
                 DrawTerminalCursor();
