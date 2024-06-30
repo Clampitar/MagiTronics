@@ -9,7 +9,7 @@ namespace MagiTronics.UI
     {
         public UsorInventory inventory;
 
-        public Player Player { get => inventory.Player; set => inventory.Player = value; }
+        public TEItemUsor Usor { get => inventory.Usor; set => inventory.Usor = value; }
         public override void OnInitialize()
         {
             inventory = new UsorInventory();

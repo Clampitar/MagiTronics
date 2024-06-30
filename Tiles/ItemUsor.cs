@@ -70,7 +70,7 @@ namespace MagiTronics.Tiles
             if (iu != null)
             {
                 Main.LocalPlayer.tileEntityAnchor.Set(iu.ID, x, y);
-                ModContent.GetInstance<MagitronicsWorld>().ToggleUI(iu.Player);
+                ModContent.GetInstance<MagitronicsWorld>().ToggleUI(iu);
                 return true;
             }
 

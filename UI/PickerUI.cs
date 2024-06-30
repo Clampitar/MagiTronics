@@ -19,7 +19,7 @@ namespace MagiTronics.UI
         public void setPicker(TEAutoPicker teAutoPicker)
         {
             autoPicker = teAutoPicker;
-            worldPosition = teAutoPicker.Player.position;
+            worldPosition = teAutoPicker.Position.ToVector2() * 16;
             Recalculate();
         }
 

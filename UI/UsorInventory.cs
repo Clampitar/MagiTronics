@@ -7,20 +7,21 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent;
 using Humanizer;
 using Terraria.GameInput;
+using MagiTronics.Tiles;
 
 namespace MagiTronics.UI
 {
     class UsorInventory : UIElement
     {
         Color color = new(255, 255, 255);
-        private Player usorPlayer = new();
+        private TEItemUsor itemUsor = new();
 
-        public Player Player { get => usorPlayer; set => usorPlayer = value; }
+        public TEItemUsor Usor { get => itemUsor; set => itemUsor = value; }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
             
-            Item[] inv = usorPlayer.inventory;
+            Item[] inv = itemUsor.Player.inventory;
             int context = 0;
             for (int i = 0; i < 10; i++)
             {

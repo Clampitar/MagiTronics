@@ -53,13 +53,13 @@ namespace MagiTronics
             _pickerInterface?.Update(gameTime);
         }
 
-        public void ToggleUI(Player usor)
+        public void ToggleUI(TEItemUsor usor)
         {
             if (_menuBar != null)
             {
                 if (_menuBar.CurrentState != null)
                 {
-                    if (MenuBar.Player == usor)
+                    if (MenuBar.Usor == usor)
                     {
                         CloseUsorInventory();
                     }
@@ -97,10 +97,10 @@ namespace MagiTronics
             }
         }
 
-        private void OpenUI(Player usor, bool hadInvOpen)
+        private void OpenUI(TEItemUsor usor, bool hadInvOpen)
         {
             Player player = Main.LocalPlayer;
-            MenuBar.Player = usor;
+            MenuBar.Usor = usor;
             _menuBar.SetState(MenuBar);
             //credits to blueshiemagic's Magic Storage for the following
             Main.mouseRightRelease = false;
@@ -133,8 +133,8 @@ namespace MagiTronics
             }
             bool hadchestOpen = player.chest != -1;
             player.chest = -1;
-            player.chestX = (int)(usor.position.X / 16);
-            player.chestY = (int)(usor.position.Y / 16);
+            player.chestX = (int)(usor.Position.X / 16);
+            player.chestY = (int)(usor.Position.Y / 16);
             Main.playerInventory = true;
             SoundEngine.PlaySound(hadchestOpen || hadInvOpen ? SoundID.MenuTick : SoundID.MenuOpen);
         }
@@ -146,9 +146,9 @@ namespace MagiTronics
             SoundEngine.PlaySound(SoundID.MenuTick);
         }
 
-        public void KilledUsor(Player usor)
+        public void KilledUsor(TEItemUsor usor)
         {
-            if(MenuBar.Player == usor)
+            if(MenuBar.Usor == usor)
             {
                 CloseUsorInventory();
             }
@@ -165,7 +165,7 @@ namespace MagiTronics
                 }
                 int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
                 int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
-                Vector2 pos = MenuBar.Player.position;
+                Vector2 pos = MenuBar.Usor.Position.ToVector2() * 16;
                 Rectangle rect = new Rectangle((int)(pos.X), (int)(pos.Y), 32, 32);//temp
                 rect.Inflate(-1, -1);
                 Point point = rect.ClosestPointInRect(player.Center).ToTileCoordinates();
@@ -174,6 +174,21 @@ namespace MagiTronics
                 if (playerX < chestPointX - Player.tileRangeX || playerX > chestPointX + Player.tileRangeX + 1 || playerY < chestPointY - Player.tileRangeY || playerY > chestPointY + Player.tileRangeY)
                 {
                     CloseUsorInventory();
+                }
+            }
+            if(_pickerInterface.CurrentState != null)
+            {
+                int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
+                int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
+                Vector2 pos = PickerUI.AutoPicker.Position.ToVector2() * 16;
+                Rectangle rect = new Rectangle((int)(pos.X), (int)(pos.Y), 32, 32);//temp
+                rect.Inflate(-1, -1);
+                Point point = rect.ClosestPointInRect(player.Center).ToTileCoordinates();
+                int pickerX = point.X;
+                int pickerY = point.Y;
+                if (playerX < pickerX - Player.tileRangeX || playerX > pickerX + Player.tileRangeX + 1 || playerY < pickerY - Player.tileRangeY || playerY > pickerY + Player.tileRangeY)
+                {
+                    CloseAutoPickerInterface();
                 }
             }
         }
@@ -215,7 +230,10 @@ namespace MagiTronics
             texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
             cursorTarget = Point16.NegativeOne;
             TerminalChecker.initialize();
-            CloseUsorInventory();
+            if(_menuBar != null && _menuBar.CurrentState != null)
+                CloseUsorInventory();
+            if(_pickerInterface != null && _pickerInterface.CurrentState != null)
+                CloseAutoPickerInterface();
         }
 
         public override void SaveWorldData(TagCompound tag)
