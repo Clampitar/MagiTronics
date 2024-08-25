@@ -2,6 +2,7 @@
 using System;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagiTronics
@@ -39,7 +40,15 @@ namespace MagiTronics
 
         public override void PostUpdate()
         {
-            ModContent.GetInstance<MagitronicsWorld>().checkValidUI(this.Player);
+            if (Main.netMode != NetmodeID.Server)
+            {
+                ModContent.GetInstance<MagitronicsWorld>().checkValidUI(this.Player);
+            }
+        }
+
+        public override void Load()
+        {
+            TerminalChecker.initialize();
         }
 
     }

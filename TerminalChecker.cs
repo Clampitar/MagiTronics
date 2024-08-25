@@ -33,6 +33,7 @@ namespace MagiTronics
         {
             List<Point16> wiredTerminals = [];
             _wireSkip = new Dictionary<Point16, bool>();
+            int netmode = Main.netMode;
             running = true;
             if (_wireList.Count != 0)
             {
