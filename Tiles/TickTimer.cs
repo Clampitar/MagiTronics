@@ -3,6 +3,8 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.ID;
+using System.IO;
+using Terraria.ModLoader.IO;
 
 namespace MagiTronics.Tiles
 {
@@ -31,7 +33,15 @@ namespace MagiTronics.Tiles
 
         public override bool RightClick(int i, int j)
         {
-            Switch(i, j);
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                ModPacket modPacket = Mod.GetPacket();
+                modPacket.Write((byte)0);
+                modPacket.Write(i);
+                modPacket.Write(j);
+                modPacket.Send();
+            }
+            else Switch(i, j);
             return true;
         }
 
@@ -41,21 +51,24 @@ namespace MagiTronics.Tiles
             Wiring.SkipWire(i, j);
         }
 
-        private void Switch(int i, int j)
+        public static void Switch(int i, int j)
         {
             Tile tile = Main.tile[i, j];
-            if (TileEntity.ByPosition.TryGetValue(new Point16(i, j), out TileEntity te) && te is TETickTimer)
+            if (TileEntity.ByPosition.TryGetValue(new Point16(i, j), out TileEntity te) && te is TETickTimer timer)
             {
-                TETickTimer tt = (TETickTimer)te;
                 if (tile.TileFrameY == 0)
                 {
                     tile.TileFrameY = 18;
-                    tt.Activate();
+                    timer.Activate();
                 }
                 else
                 {
                     tile.TileFrameY = 0;
-                    tt.Deactivate();
+                    timer.Deactivate();
+                }
+                if (Main.netMode == NetmodeID.Server)
+                {
+                    NetMessage.SendTileSquare(-1, i, j);
                 }
             }
         }

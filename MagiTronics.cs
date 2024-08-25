@@ -2,6 +2,9 @@ using MonoMod.Cil;
 using Terraria;
 using Terraria.ModLoader;
 using System;
+using System.IO;
+using Terraria.DataStructures;
+using MagiTronics.Tiles;
 
 namespace MagiTronics
 {
@@ -48,7 +51,20 @@ namespace MagiTronics
             }
         }
 
-        
+        public override void HandlePacket(BinaryReader reader, int whoAmI)
+        {
+            Byte msgType = reader.ReadByte();
+            if (msgType == 0)
+            {
+                int i = reader.ReadInt32();
+                int j = reader.ReadInt32();
+                TickTimer.Switch(i, j);
+            }
+            else
+            {
+                Logger.Warn("id not recognized");
+            }
+        }
 
     }
 }
