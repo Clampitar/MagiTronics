@@ -23,6 +23,7 @@ namespace MagiTronics.Tiles
 
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
+            ModContent.GetInstance<UISystem>().KilledPicker(new Point16(i, j));
             ModContent.GetInstance<TEAutoPicker>().Kill(i, j);
         }
 

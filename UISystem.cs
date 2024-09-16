@@ -141,11 +141,19 @@ namespace MagiTronics
             SoundEngine.PlaySound(SoundID.MenuTick);
         }
 
-        public void KilledUsor(TEItemUsor usor)
+        public void KilledUsor(Point16 pos)
         {
-            if (MenuBar.Usor == usor)
+            if (MenuBar.Usor.Position == pos)
             {
                 CloseUsorInventory();
+            }
+        }
+
+        public void KilledPicker(Point16 pos)
+        {
+            if (PickerUI.AutoPicker.Position == pos)
+            {
+                CloseAutoPickerInterface();
             }
         }
 
@@ -169,6 +177,7 @@ namespace MagiTronics
                 if (playerX < chestPointX - Player.tileRangeX || playerX > chestPointX + Player.tileRangeX + 1 || playerY < chestPointY - Player.tileRangeY || playerY > chestPointY + Player.tileRangeY)
                 {
                     CloseUsorInventory();
+                    Main.NewText("too far from" + pos);
                 }
             }
             if (_pickerInterface.CurrentState != null)
