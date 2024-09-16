@@ -11,7 +11,7 @@ namespace MagiTronics
         {
             if(item.type == ItemID.WireCutter)
             {
-                MagitronicsWorld.RemoveData(Player.tileTargetX, Player.tileTargetY);
+                TerminalSystem.RemoveData(Player.tileTargetX, Player.tileTargetY);
                 return null;
             }
             return null;

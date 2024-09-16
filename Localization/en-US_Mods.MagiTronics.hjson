@@ -75,7 +75,7 @@ Items: {
 
 	AutoPicker: {
 		DisplayName: Auto Picker
-		Tooltip: 
+		Tooltip:
 			'''
 			Not a crafting station
 			70% pickaxe power

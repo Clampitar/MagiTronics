@@ -1,37 +1,32 @@
 ﻿
+using MagiTronics.Items;
+using MagiTronics.Tiles;
+using MagiTronics.UI;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
-using Microsoft.Xna.Framework;
-using MagiTronics.Items;
-using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using Terraria.GameContent;
 using Terraria.GameContent.UI;
-using MagiTronics.UI;
-using Terraria.UI;
-using MagiTronics.Tiles;
+using Terraria.ID;
 using Terraria.Localization;
-using System;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using Terraria.UI;
 
 namespace MagiTronics
 {
-    internal class MagitronicsWorld : ModSystem
+    [Autoload(Side = ModSide.Client)]
+    internal class UISystem : ModSystem
     {
         internal AutoUsorUI MenuBar;
         private UserInterface _menuBar;
 
         private PickerUI PickerUI;
         private UserInterface _pickerInterface;
-
-        private static Point16 cursorTarget = Point16.NegativeOne;
-
-        public static void SetCursorTarget() => cursorTarget = new Point16(Player.tileTargetX, Player.tileTargetY);
-        public static void resetCursorTarget() => cursorTarget = Point16.NegativeOne;
 
 
         public override void Load()
@@ -77,11 +72,11 @@ namespace MagiTronics
 
         public void ToggleUI(TEAutoPicker autoPicker)
         {
-            if(_pickerInterface != null)
+            if (_pickerInterface != null)
             {
                 if (_pickerInterface.CurrentState != null)
                 {
-                    if(PickerUI.AutoPicker == autoPicker)
+                    if (PickerUI.AutoPicker == autoPicker)
                     {
                         CloseAutoPickerInterface();
                     }
@@ -148,7 +143,7 @@ namespace MagiTronics
 
         public void KilledUsor(TEItemUsor usor)
         {
-            if(MenuBar.Usor == usor)
+            if (MenuBar.Usor == usor)
             {
                 CloseUsorInventory();
             }
@@ -156,9 +151,9 @@ namespace MagiTronics
 
         public void checkValidUI(Player player)
         {
-            if(_menuBar.CurrentState != null)
+            if (_menuBar.CurrentState != null)
             {
-                if(player.chest != -1)
+                if (player.chest != -1)
                 {
                     CloseUsorInventory();
                     return;
@@ -176,7 +171,7 @@ namespace MagiTronics
                     CloseUsorInventory();
                 }
             }
-            if(_pickerInterface.CurrentState != null)
+            if (_pickerInterface.CurrentState != null)
             {
                 int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
                 int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
@@ -217,33 +212,21 @@ namespace MagiTronics
                     delegate
                     {
                         _menuBar.Draw(Main.spriteBatch, new GameTime());
-                        //_pickerInterface.Draw(Main.spriteBatch, new GameTime());
+                        _pickerInterface.Draw(Main.spriteBatch, new GameTime());
                         return true;
                     },
                     InterfaceScaleType.UI)
                 );
             }
         }
-        public override void LoadWorldData(TagCompound tag)
+
+        public override void OnWorldLoad()
         {
-            modedActuators =  tag.Get<List<Point16>>("modedActuators");
-            texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
-            cursorTarget = Point16.NegativeOne;
-            TerminalChecker.initialize();
-            if(_menuBar != null && _menuBar.CurrentState != null)
+            if (_menuBar != null && _menuBar.CurrentState != null)
                 CloseUsorInventory();
-            if(_pickerInterface != null && _pickerInterface.CurrentState != null)
+            if (_pickerInterface != null && _pickerInterface.CurrentState != null)
                 CloseAutoPickerInterface();
         }
-
-        public override void SaveWorldData(TagCompound tag)
-        {
-            tag.Set("modedActuators", modedActuators);
-        }
-
-        public static List<Point16> modedActuators = new();
-
-        public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
 
         public static Vector2 AdjustPosition(Vector2 renderPosition)
         {
@@ -261,75 +244,11 @@ namespace MagiTronics
         {
             Main.spriteBatch.Begin();
             Main.tileBatch.Begin();
-            Vector2 zoom = Main.GameViewMatrix.Zoom;
             _pickerInterface.Draw(Main.spriteBatch, new GameTime());
-            if (cursorTarget != Point16.NegativeOne)
-            {
-                DrawTerminalCursor();
-            }
-            if(WiresUI.Settings.DrawWires) {
-            foreach (Point16 point in modedActuators)
-                Main.spriteBatch.Draw(texture, AdjustPosition(new Vector2(point.X * 16, point.Y * 16)), new Rectangle(0, 0, 16, 16), new Color(255, 255, 255), 0f, default, zoom, SpriteEffects.None, 0f);
-            }
-        Main.tileBatch.End();
-        Main.spriteBatch.End();
+            Main.tileBatch.End();
+            Main.spriteBatch.End();
         }
 
-        public static void DrawTerminalCursor()
-        {
-            Vector2 renderPosition = new Vector2(cursorTarget.X, cursorTarget.Y) * 16f;
-            renderPosition = AdjustPosition(renderPosition);
-            Color newColor = Lighting.GetColor(cursorTarget.X, cursorTarget.Y);
-            Rectangle rec = new Rectangle(0, 0, 16, 16);
-            float r = 0.3f;
-            float g = 0.3f;
-            float b = 0.9f;
-            float a = 0.8f;
-            float colormult = 0.8f;
-            Color c = Main.buffColor(newColor, r, g, b, a) * colormult;
-            Vector2 scale = Main.GameViewMatrix.Zoom;
-            //Main.spriteBatch.Draw(TextureAssets.SmartDig.Value, renderPosition, rec, c * colormult, 0f, default, Main.GameViewMatrix.Zoom, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition , rec, c, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-            r = 0.1f;
-            b = 0.9f;
-            g = 0.1f;
-            a = 0.8f;
-            colormult = 1f;
-            c = Main.buffColor(newColor, r, g, b, a) * colormult;
-            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitX * -2f * scale, rec, c, 0f, Vector2.Zero, new Vector2(0.125f, 1f) * scale , SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitX * 16 * scale, rec, c, 0f, Vector2.Zero, new Vector2(0.125f, 1f) * scale , SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * -2f * scale  , rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) *  scale, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * 16f * scale, rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) * scale , SpriteEffects.None, 0f);
-        }
-
-        public static bool AddData(Point16 point)
-        {
-            if (!modedActuators.Contains(point))
-            {
-                modedActuators.Add(point);
-                SoundEngine.PlaySound(SoundID.Dig);
-                return true;
-            }
-            return false;
-        }
-
-        public static void RemoveData(int x, int y)
-        {
-            Point16 point = new Point16(x, y);
-            Vector2 pos = new Vector2(x* 16, y*16);
-            if (modedActuators.Contains(point))
-            {
-                modedActuators.Remove(point);
-                SoundEngine.PlaySound(SoundID.Dig);
-                for(int i = 0; i < 5; i++)
-                    Dust.NewDust(pos, 1, 1, DustID.Adamantite);
-                int number = Item.NewItem(new EntitySource_TileBreak(x, y), pos, 16, 16, ModContent.ItemType<UsageTerminal>());
-                if (Main.netMode == NetmodeID.MultiplayerClient)
-                {
-                    NetMessage.SendData(MessageID.SyncItem, -1, -1, null, number, 1f);
-                }
-            }
-        }
 
     }
 }

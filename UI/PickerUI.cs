@@ -60,7 +60,7 @@ namespace MagiTronics.UI
 
         private void adjustPosition()
         {
-            Vector2 position = MagitronicsWorld.AdjustPosition(worldPosition);
+            Vector2 position = TerminalSystem.AdjustPosition(worldPosition);
             Top.Set(position.Y, 0);
             Left.Set(position.X, 0);
             Recalculate();

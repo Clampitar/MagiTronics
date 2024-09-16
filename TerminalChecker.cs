@@ -241,7 +241,7 @@ namespace MagiTronics
 
         private static void HitWireSingle(Point16 key, ref List<Point16> wiredTerminals)
         {
-            if (MagitronicsWorld.modedActuators.Contains(key))
+            if (TerminalSystem.modedActuators.Contains(key))
             {
                 wiredTerminals.Add(key);
             }

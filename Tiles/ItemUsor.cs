@@ -33,7 +33,7 @@ namespace MagiTronics.Tiles
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
             ModContent.GetInstance<TEItemUsor>().Kill(i, j);
-            ModContent.GetInstance<MagitronicsWorld>().CloseUsorInventory();
+            ModContent.GetInstance<UISystem>().CloseUsorInventory();
         }
 
         public override void HitWire(int x, int y)
@@ -70,7 +70,7 @@ namespace MagiTronics.Tiles
             if (iu != null)
             {
                 Main.LocalPlayer.tileEntityAnchor.Set(iu.ID, x, y);
-                ModContent.GetInstance<MagitronicsWorld>().ToggleUI(iu);
+                ModContent.GetInstance<UISystem>().ToggleUI(iu);
                 return true;
             }
 

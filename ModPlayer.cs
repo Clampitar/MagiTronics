@@ -20,11 +20,11 @@ namespace MagiTronics
                 Player.tileTargetY += shift.Y;
                 Player.tileRangeX += Math.Abs(shift.X);
                 Player.tileRangeY += Math.Abs(shift.Y);
-                MagitronicsWorld.SetCursorTarget();
+                TerminalSystem.SetCursorTarget();
             }
             else
             {
-                MagitronicsWorld.resetCursorTarget();
+                TerminalSystem.resetCursorTarget();
             }
             return true;
         }
@@ -42,7 +42,7 @@ namespace MagiTronics
         {
             if (Main.netMode != NetmodeID.Server)
             {
-                ModContent.GetInstance<MagitronicsWorld>().checkValidUI(this.Player);
+                ModContent.GetInstance<UISystem>().checkValidUI(this.Player);
             }
         }
 
@@ -50,6 +50,5 @@ namespace MagiTronics
         {
             TerminalChecker.initialize();
         }
-
     }
 }
