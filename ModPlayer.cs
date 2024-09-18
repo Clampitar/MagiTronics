@@ -45,10 +45,5 @@ namespace MagiTronics
                 ModContent.GetInstance<UISystem>().checkValidUI(this.Player);
             }
         }
-
-        public override void Load()
-        {
-            TerminalChecker.initialize();
-        }
     }
 }

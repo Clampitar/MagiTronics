@@ -49,7 +49,7 @@ namespace MagiTronics.Items
                 int x = Player.tileTargetX;
                 int y = Player.tileTargetY;
 
-                if (TerminalSystem.AddData(new Terraria.DataStructures.Point16(x, y)))
+                if (ModContent.GetInstance<TerminalSystem>().placeTerminal((short)x, (short)y))
                 {
                     player.inventory[ammoIndex].stack--;
                     if(player.inventory[ammoIndex].stack < 1)

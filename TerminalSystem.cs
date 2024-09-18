@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -26,12 +27,18 @@ namespace MagiTronics
         public static void SetCursorTarget() => cursorTarget = new Point16(Player.tileTargetX, Player.tileTargetY);
         public static void resetCursorTarget() => cursorTarget = Point16.NegativeOne;
 
+        public static List<Point16> modedActuators = new();
+
+        public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
+
+        private Point16 pointToSync;
+
+        private static byte syncmode = 2;
         public override void LoadWorldData(TagCompound tag)
         {
             modedActuators = tag.Get<List<Point16>>("modedActuators");
             texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
             cursorTarget = Point16.NegativeOne;
-            TerminalChecker.initialize();
         }
 
         public override void SaveWorldData(TagCompound tag)
@@ -39,9 +46,10 @@ namespace MagiTronics
             tag.Set("modedActuators", modedActuators);
         }
 
-        public static List<Point16> modedActuators = new();
-
-        public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
+        public override void ClearWorld()
+        {
+            TerminalChecker.initialize();
+        }
 
         public static Vector2 AdjustPosition(Vector2 renderPosition)
         {
@@ -100,15 +108,73 @@ namespace MagiTronics
             Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * 16f * scale, rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) * scale, SpriteEffects.None, 0f);
         }
 
-        public static bool AddData(Point16 point)
+        public override void NetSend(BinaryWriter writer)
+        {
+           /* int x = pointToSync.X;
+            int y = pointToSync.Y;
+            writer.Write(syncmode);
+            if (syncmode != 2)
+            {
+                writer.Write(x);
+                writer.Write(y);
+            }
+            syncmode = 2;*/
+        }
+
+        public override void NetReceive(BinaryReader reader)
+        {
+           /* Byte msgType = reader.ReadByte();
+            switch (msgType)
+            {
+                case 0:
+                    int x = reader.ReadInt16();
+                    int y = reader.ReadInt16();
+                    AddDataClient(new Point16(x, y));
+                    break;
+            }
+            syncmode = 2;*/
+        }
+
+        //called on client
+        public bool placeTerminal(short x, short y)
+        {
+            Point16 point = new Point16(x, y);
+            bool placed = !modedActuators.Contains(point);
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                ModPacket modPacket = Mod.GetPacket();
+                modPacket.Write((byte)1);
+                modPacket.Write(x);
+                modPacket.Write(y);
+                syncmode = 0;
+                modPacket.Send();
+            } else AddDataClient(point);
+            return placed;
+        }
+        //called on server
+        public void AddData(Point16 point)
+        {
+            //modedActuators.Clear();
+            if (!modedActuators.Contains(point))
+            {
+                modedActuators.Add(point);
+                ModPacket modPacket = Mod.GetPacket();
+                modPacket.Write((byte)1);
+                modPacket.Write(point.X);
+                modPacket.Write(point.Y);
+                syncmode = 0;
+                modPacket.Send();
+            }
+        }
+
+        //called on client
+        public static void AddDataClient(Point16 point)
         {
             if (!modedActuators.Contains(point))
             {
                 modedActuators.Add(point);
                 SoundEngine.PlaySound(SoundID.Dig);
-                return true;
             }
-            return false;
         }
 
         public static void RemoveData(int x, int y)

@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Terraria.DataStructures;
 using MagiTronics.Tiles;
+using Terraria.ID;
 
 namespace MagiTronics
 {
@@ -54,15 +55,27 @@ namespace MagiTronics
         public override void HandlePacket(BinaryReader reader, int whoAmI)
         {
             Byte msgType = reader.ReadByte();
-            if (msgType == 0)
+            switch (msgType)
             {
-                int i = reader.ReadInt32();
-                int j = reader.ReadInt32();
-                TickTimer.Switch(i, j);
-            }
-            else
-            {
-                Logger.Warn("id not recognized");
+                case 0:
+                    int i = reader.ReadInt32();
+                    int j = reader.ReadInt32();
+                    TickTimer.Switch(i, j);
+                    break;
+                case 1:
+                    Point16 point = new Point16(reader.ReadInt16(), reader.ReadInt16());
+                    if (Main.netMode == NetmodeID.Server)
+                    {
+                        ModContent.GetInstance<TerminalSystem>().AddData(point);
+                    }
+                    else
+                    {
+                        TerminalSystem.AddDataClient(point);
+                    }
+                    break;
+                default:
+                    Logger.Warn("id not recognized");
+                    break;
             }
         }
 
