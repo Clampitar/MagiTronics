@@ -64,13 +64,20 @@ namespace MagiTronics
                     break;
                 case 1:
                     Point16 point = new Point16(reader.ReadInt16(), reader.ReadInt16());
+                    bool add = reader.ReadBoolean();
                     if (Main.netMode == NetmodeID.Server)
                     {
-                        ModContent.GetInstance<TerminalSystem>().AddData(point);
+                        if (add)
+                            ModContent.GetInstance<TerminalSystem>().AddData(point);
+                        else
+                            ModContent.GetInstance<TerminalSystem>().RemoveData(point);
                     }
                     else
                     {
-                        TerminalSystem.AddDataClient(point);
+                        if (add)
+                            TerminalSystem.AddDataClient(point);
+                        else
+                            TerminalSystem.RemoveDataClient(point);
                     }
                     break;
                 default:

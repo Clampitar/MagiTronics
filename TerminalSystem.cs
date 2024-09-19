@@ -31,9 +31,6 @@ namespace MagiTronics
 
         public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
 
-        private Point16 pointToSync;
-
-        private static byte syncmode = 2;
         public override void LoadWorldData(TagCompound tag)
         {
             modedActuators = tag.Get<List<Point16>>("modedActuators");
@@ -108,33 +105,6 @@ namespace MagiTronics
             Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * 16f * scale, rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) * scale, SpriteEffects.None, 0f);
         }
 
-        public override void NetSend(BinaryWriter writer)
-        {
-           /* int x = pointToSync.X;
-            int y = pointToSync.Y;
-            writer.Write(syncmode);
-            if (syncmode != 2)
-            {
-                writer.Write(x);
-                writer.Write(y);
-            }
-            syncmode = 2;*/
-        }
-
-        public override void NetReceive(BinaryReader reader)
-        {
-           /* Byte msgType = reader.ReadByte();
-            switch (msgType)
-            {
-                case 0:
-                    int x = reader.ReadInt16();
-                    int y = reader.ReadInt16();
-                    AddDataClient(new Point16(x, y));
-                    break;
-            }
-            syncmode = 2;*/
-        }
-
         //called on client
         public bool placeTerminal(short x, short y)
         {
@@ -142,12 +112,7 @@ namespace MagiTronics
             bool placed = !modedActuators.Contains(point);
             if (Main.netMode == NetmodeID.MultiplayerClient)
             {
-                ModPacket modPacket = Mod.GetPacket();
-                modPacket.Write((byte)1);
-                modPacket.Write(x);
-                modPacket.Write(y);
-                syncmode = 0;
-                modPacket.Send();
+                SyncTerminal(point, true);
             } else AddDataClient(point);
             return placed;
         }
@@ -158,12 +123,7 @@ namespace MagiTronics
             if (!modedActuators.Contains(point))
             {
                 modedActuators.Add(point);
-                ModPacket modPacket = Mod.GetPacket();
-                modPacket.Write((byte)1);
-                modPacket.Write(point.X);
-                modPacket.Write(point.Y);
-                syncmode = 0;
-                modPacket.Send();
+                SyncTerminal(point, true);
             }
         }
 
@@ -173,26 +133,61 @@ namespace MagiTronics
             if (!modedActuators.Contains(point))
             {
                 modedActuators.Add(point);
-                SoundEngine.PlaySound(SoundID.Dig);
+                Vector2 pos = new Vector2(point.X * 16, point.Y * 16);
+                SoundEngine.PlaySound(SoundID.Dig, pos);
             }
         }
 
-        public static void RemoveData(int x, int y)
+        public void DestroyTerminal(int x, int y)
         {
             Point16 point = new Point16(x, y);
-            Vector2 pos = new Vector2(x * 16, y * 16);
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                SyncTerminal(point, false);
+            }
+            else RemoveDataClient(point);
+        }
+        public void RemoveData(Point16 point)
+        {
             if (modedActuators.Contains(point))
             {
                 modedActuators.Remove(point);
-                SoundEngine.PlaySound(SoundID.Dig);
-                for (int i = 0; i < 5; i++)
-                    Dust.NewDust(pos, 1, 1, DustID.Adamantite);
-                int number = Item.NewItem(new EntitySource_TileBreak(x, y), pos, 16, 16, ModContent.ItemType<UsageTerminal>());
+                Vector2 pos = new Vector2(point.X * 16, point.Y * 16);
+                int number = Item.NewItem(new EntitySource_TileBreak(point.X, point.Y), pos, 16, 16, ModContent.ItemType<UsageTerminal>());
                 if (Main.netMode == NetmodeID.MultiplayerClient)
                 {
                     NetMessage.SendData(MessageID.SyncItem, -1, -1, null, number, 1f);
                 }
+
+                SyncTerminal(point, false);
             }
+        }
+
+        public static void RemoveDataClient(Point16 point)
+        {
+            if (modedActuators.Contains(point))
+            {
+                modedActuators.Remove(point);
+                Vector2 pos = new Vector2(point.X * 16, point.Y * 16);
+                SoundEngine.PlaySound(SoundID.Dig, pos);
+                for (int i = 0; i < 5; i++)
+                    Dust.NewDust(pos, 1, 1, DustID.Adamantite);
+            }
+        }
+
+        private void SyncTerminal(short x, short y, bool add)
+        {
+            ModPacket modPacket = Mod.GetPacket();
+            modPacket.Write((byte)1);
+            modPacket.Write(x);
+            modPacket.Write(y);
+            modPacket.Write(add);
+            modPacket.Send();
+        }
+
+        private void SyncTerminal(Point16 point, bool add)
+        {
+            SyncTerminal(point.X, point.Y, add);
         }
 
     }

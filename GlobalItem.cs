@@ -11,7 +11,7 @@ namespace MagiTronics
         {
             if(item.type == ItemID.WireCutter)
             {
-                TerminalSystem.RemoveData(Player.tileTargetX, Player.tileTargetY);
+                ModContent.GetInstance<TerminalSystem>().DestroyTerminal(Player.tileTargetX, Player.tileTargetY);
                 return null;
             }
             return null;
