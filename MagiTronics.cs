@@ -12,6 +12,13 @@ namespace MagiTronics
 	public class MagiTronics : Mod
 	{
         public static bool magicStorageLoaded = false;
+
+        public enum PacketId : byte
+        {
+            TICKTIMER = 0,
+            SINGLETERMINAL = 1,
+            WORLDLOAD = 2
+        }
         public override void Load()
         {
             IL_Wiring.XferWater += Wiring_XferWater;
@@ -52,17 +59,18 @@ namespace MagiTronics
             }
         }
 
+
         public override void HandlePacket(BinaryReader reader, int whoAmI)
         {
-            Byte msgType = reader.ReadByte();
-            switch (msgType)
+            byte msgType = reader.ReadByte();
+            switch ((PacketId)msgType)
             {
-                case 0:
+                case PacketId.TICKTIMER:
                     int i = reader.ReadInt32();
                     int j = reader.ReadInt32();
                     TickTimer.Switch(i, j);
                     break;
-                case 1:
+                case PacketId.SINGLETERMINAL:
                     Point16 point = new Point16(reader.ReadInt16(), reader.ReadInt16());
                     bool add = reader.ReadBoolean();
                     if (Main.netMode == NetmodeID.Server)
@@ -78,6 +86,16 @@ namespace MagiTronics
                             TerminalSystem.AddDataClient(point);
                         else
                             TerminalSystem.RemoveDataClient(point);
+                    }
+                    break;
+                case PacketId.WORLDLOAD:
+                    if (Main.netMode == NetmodeID.Server)
+                    {
+                        ModContent.GetInstance<TerminalSystem>().SendWorldData();
+                    }
+                    else
+                    {
+                        ModContent.GetInstance<TerminalSystem>().RecieveWorldData(reader);
                     }
                     break;
                 default:

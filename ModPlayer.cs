@@ -45,5 +45,16 @@ namespace MagiTronics
                 ModContent.GetInstance<UISystem>().checkValidUI(this.Player);
             }
         }
+
+        public override void OnEnterWorld()
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                ModPacket modPacket = Mod.GetPacket();
+                modPacket.Write((byte)2);
+                modPacket.Send();
+
+            }
+        }
     }
 }

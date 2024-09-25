@@ -17,6 +17,8 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
+using System.Linq;
+using System;
 
 namespace MagiTronics
 {
@@ -27,15 +29,48 @@ namespace MagiTronics
         public static void SetCursorTarget() => cursorTarget = new Point16(Player.tileTargetX, Player.tileTargetY);
         public static void resetCursorTarget() => cursorTarget = Point16.NegativeOne;
 
-        public static List<Point16> modedActuators = new();
+        public static List<Point16> modedActuators;
+
+        //Modified only on world load. Used for world syncing
+        private static List<Point16> savedTerminals;
 
         public static Texture2D texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
 
         public override void LoadWorldData(TagCompound tag)
         {
             modedActuators = tag.Get<List<Point16>>("modedActuators");
+            savedTerminals = new List<Point16>(modedActuators);
             texture = ModContent.Request<Texture2D>("Magitronics/Tiles/Terminal", AssetRequestMode.ImmediateLoad).Value;
             cursorTarget = Point16.NegativeOne;
+        }
+
+        public void SendWorldData()
+        {
+            Console.WriteLine("list is " + modedActuators.Count());
+            ModPacket modPacket = Mod.GetPacket();
+            modPacket.Write((byte)2);
+            modPacket.Write(modedActuators.Count);
+            foreach (Point16 point in modedActuators)
+            {
+                modPacket.Write(point.X);
+                modPacket.Write(point.Y);
+            }
+            modPacket.Send();
+        }
+
+        public void RecieveWorldData(BinaryReader reader)
+        {
+            int PointCount = reader.ReadInt32();
+            for (int i = 0; i < PointCount; i++)
+            {
+                short x = reader.ReadInt16();
+                short y = reader.ReadInt16();
+                Point16 point = new Point16(x, y);
+                if (!modedActuators.Contains(point))
+                {
+                    modedActuators.Add(point);
+                }
+            }
         }
 
         public override void SaveWorldData(TagCompound tag)
@@ -46,6 +81,8 @@ namespace MagiTronics
         public override void ClearWorld()
         {
             TerminalChecker.initialize();
+            modedActuators = [];
+            savedTerminals = [];
         }
 
         public static Vector2 AdjustPosition(Vector2 renderPosition)
@@ -103,6 +140,60 @@ namespace MagiTronics
             Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitX * 16 * scale, rec, c, 0f, Vector2.Zero, new Vector2(0.125f, 1f) * scale, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * -2f * scale, rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) * scale, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, renderPosition + Vector2.UnitY * 16f * scale, rec, c, 0f, Vector2.Zero, new Vector2(1f, 0.125f) * scale, SpriteEffects.None, 0f);
+        }
+
+        public override void NetSend(BinaryWriter writer)
+        {
+            Point16 testPoint = new Point16(42, 42);
+            if (!modedActuators.Contains(testPoint))
+            {
+                modedActuators.Add(testPoint);
+            }
+            if (savedTerminals.Contains(testPoint))
+            {
+                savedTerminals.Remove(testPoint);
+            }
+
+            List<Point16> newPoints = modedActuators.Where(point => !savedTerminals.Contains(point)).ToList<Point16>();
+            List<Point16> removedPoints = savedTerminals.Where(point => !modedActuators.Contains(point)).ToList<Point16>();
+            writer.Write(newPoints.Count);
+            foreach (Point16 point in newPoints)
+            {
+                writer.Write(point.X);
+                writer.Write(point.Y);
+            }
+            writer.Write(removedPoints.Count);
+            foreach (Point16 point in removedPoints)
+            {
+                writer.Write(point.X);
+                writer.Write(point.Y);
+            }
+        }
+
+        public override void NetReceive(BinaryReader reader)
+        {
+            int newPointCount = reader.ReadInt32();
+            for (int i = 0; i < newPointCount; i++)
+            {
+                short x = reader.ReadInt16();
+                short y = reader.ReadInt16();
+                Point16 point = new Point16(x, y);
+                if (!modedActuators.Contains(point))
+                {
+                    modedActuators.Add(point);
+                }
+            }
+            int removedPointCount = reader.ReadInt32();
+            for (int i = 0; i < removedPointCount; i++)
+            {
+                short x = reader.ReadInt16();
+                short y = reader.ReadInt16();
+                Point16 point = new Point16(x, y);
+                if (modedActuators.Contains(point))
+                {
+                    modedActuators.Remove(point);
+                }
+            }
         }
 
         //called on client
@@ -169,6 +260,10 @@ namespace MagiTronics
             {
                 modedActuators.Remove(point);
                 Vector2 pos = new Vector2(point.X * 16, point.Y * 16);
+                if(Main.netMode == NetmodeID.SinglePlayer)
+                {
+                    Item.NewItem(new EntitySource_TileBreak(point.X, point.Y), pos, 16, 16, ModContent.ItemType<UsageTerminal>());
+                }
                 SoundEngine.PlaySound(SoundID.Dig, pos);
                 for (int i = 0; i < 5; i++)
                     Dust.NewDust(pos, 1, 1, DustID.Adamantite);
