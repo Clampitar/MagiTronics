@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.Audio;
@@ -50,15 +51,66 @@ namespace MagiTronics.Tiles
                 usorPlayer.position = tag.Get<Vector2>("pos");
             }
         }
+
+        public override void NetSend(BinaryWriter writer)
+        {
+            Item[] items = usorPlayer.inventory;
+            foreach (Item item in items)
+            {
+                ItemIO.Send(item, writer, writeStack: true);
+            }
+        }
+
+        public override void NetReceive(BinaryReader reader)
+        {
+            Item[] items = usorPlayer.inventory;
+            foreach (Item item in items)
+            {
+                ItemIO.Receive(item, reader, readStack: true);
+            }
+        }
+
+        private void SyncItem(int index)
+        {
+            if(Main.netMode == NetmodeID.SinglePlayer)
+            {
+                return;
+            }
+            ModPacket modPacket = Mod.GetPacket();
+            modPacket.Write((byte)MagiTronics.PacketId.USORITEM);
+            modPacket.Write(Position.X);
+            modPacket.Write(Position.Y);
+            modPacket.Write(index);
+            Item item = usorPlayer.inventory[index];
+            ItemIO.Send(item, modPacket, writeStack: true);
+            modPacket.Send();
+        }
+
+        public void SyncedItem(BinaryReader reader)
+        {
+            int index = reader.ReadInt32();
+            Item item = usorPlayer.inventory[index];
+            ItemIO.Receive(item, reader, readStack: true);
+            if(Main.netMode == NetmodeID.Server)
+            {
+                SyncItem(index);
+            }
+        }
         public override bool OverrideItemSlotLeftClick(Item[] inv, int context = 0, int slot = 0)
         {
-            if (context != 0) return false;
+            if (Main.cursorOverride == CursorOverrideID.InventoryToChest)
+            {
+                TryPlacingInPlayer(inv[slot], usorPlayer.inventory);
+                return true;
+            }
+            if (context != ItemSlot.Context.ChestItem) return false;
             if (Main.cursorOverride == CursorOverrideID.FavoriteStar) return false;
             if (OverrideSellOrTrash(inv, context, slot)) return true;
 
-            if(Main.cursorOverride == CursorOverrideID.InventoryToChest)
+            if(Main.cursorOverride == CursorOverrideID.ChestToInventory)
             {
-                TryPlacingÏnPlayer(inv[slot]);
+                TryPlacingInPlayer(inv[slot], Main.LocalPlayer.inventory);
+                SyncItem(slot);
                 return true;
             }
             if (Main.mouseItem.maxStack <= 1 || inv[slot].type != Main.mouseItem.type || inv[slot].stack == inv[slot].maxStack || Main.mouseItem.stack == Main.mouseItem.maxStack)
@@ -112,11 +164,21 @@ namespace MagiTronics.Tiles
                 Recipe.FindRecipes();
                 SoundEngine.PlaySound(SoundID.Grab);
             }
-
+            SyncItem(slot);
             return true;
         }
 
-        private static bool OverrideSellOrTrash(Item[] inv, int context, int slot)
+        public void OverrideRightClick(int slot)
+        {
+            Item[] inv = usorPlayer.inventory;
+            ItemSlot.RightClick(inv, ItemSlot.Context.InventoryItem, slot);
+            if (Main.mouseRightRelease || Main.mouseRight)
+            {
+                SyncItem(slot);
+            }
+        }
+
+        private bool OverrideSellOrTrash(Item[] inv, int context, int slot)
         {
             bool result = false;
             if (ItemSlot.NotUsingGamepad && ItemSlot.Options.DisableLeftShiftTrashCan)
@@ -125,7 +187,8 @@ namespace MagiTronics.Tiles
                 {
                     if (ItemSlot.ControlInUse)
                     {
-                        ItemSlot.SellOrTrash(inv, context, slot);
+                        ItemSlot.SellOrTrash(inv, 0, slot);
+                        SyncItem(slot);
                         result = true;
                     }
                 }
@@ -141,9 +204,8 @@ namespace MagiTronics.Tiles
             return result;
         }
 
-        private void TryPlacingÏnPlayer(Item item)
+        private void TryPlacingInPlayer(Item item, Item[] inv)
         {
-            Item[] inv = usorPlayer.inventory;
             if (item.maxStack > 1)
             {
                 for (int i = 0; i < 50; i++)
@@ -154,6 +216,7 @@ namespace MagiTronics.Tiles
                     }
                     ItemLoader.StackItems(inv[i], item, out var _);
                     SoundEngine.PlaySound(SoundID.Grab);
+                    SyncItem(i);
                     if (item.stack <= 0)
                     {
                         item.SetDefaults();
@@ -178,6 +241,10 @@ namespace MagiTronics.Tiles
                     inv[j] = item.Clone();
                     item.SetDefaults();
                     ItemSlot.AnnounceTransfer(new ItemSlot.ItemTransferInfo(inv[j], 0, 3));
+                    if (Main.netMode == NetmodeID.MultiplayerClient)
+                    {
+                        SyncItem(j);
+                    }
                     break;
                 }
             }
@@ -186,20 +253,34 @@ namespace MagiTronics.Tiles
 
         public override bool OverrideItemSlotHover(Item[] inv, int context = 0, int slot = 0)
         {
-            if(context != 0) return false;
-            if (ItemSlot.ShiftInUse && !inv[slot].favorited)
+            if (context == 0)
             {
-                Main.cursorOverride = CursorOverrideID.InventoryToChest;
+                if (ItemSlot.ShiftInUse && !inv[slot].favorited)
+                {
+                    Main.cursorOverride = CursorOverrideID.InventoryToChest;
+                    return true;
+                }
             }
-            if(ItemSlot.ControlInUse)
+            else if(context == 3)
             {
-                Main.cursorOverride = CursorOverrideID.TrashCan;
+                if (ItemSlot.ShiftInUse && !inv[slot].favorited)
+                {
+                    Main.cursorOverride = CursorOverrideID.ChestToInventory;
+                    return true;
+                }
+                if (ItemSlot.ControlInUse)
+                {
+                    Main.cursorOverride = CursorOverrideID.TrashCan;
+                    return true;
+                }
+                if (Main.cursorOverride == CursorOverrideID.FavoriteStar)
+                {
+                    Main.cursorOverride = CursorOverrideID.DefaultCursor;
+                    return true;
+                }
             }
-            if(Main.cursorOverride == CursorOverrideID.FavoriteStar)
-            {
-                Main.cursorOverride = CursorOverrideID.DefaultCursor;
-            }
-            return true;
+            
+            return false;
         }
         public override void Update()
         {

@@ -2,10 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Terraria.UI;
 using Terraria;
-using Terraria.ModLoader;
-using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent;
-using Humanizer;
 using Terraria.GameInput;
 using MagiTronics.Tiles;
 
@@ -22,7 +19,6 @@ namespace MagiTronics.UI
         {
             
             Item[] inv = itemUsor.Player.inventory;
-            int context = 0;
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 5; j++)
@@ -35,10 +31,17 @@ namespace MagiTronics.UI
                         TextureAssets.InventoryBack.Height() * Main.inventoryScale) && !PlayerInput.IgnoreMouseInterface)
                     {
                         Main.LocalPlayer.mouseInterface = true;
-                        ItemSlot.Handle(inv, ItemSlot.Context.ChestItem, slot);
+                        int context = ItemSlot.Context.ChestItem;
+                        ItemSlot.OverrideHover(inv, context, slot);
+                        ItemSlot.LeftClick(inv, context, slot);
+                        itemUsor.OverrideRightClick(slot);
+                        if (Main.mouseLeftRelease && Main.mouseLeft)
+                            Recipe.FindRecipes();
+
+                        ItemSlot.MouseHover(inv, context, slot);
 
                     }
-                    ItemSlot.Draw(spriteBatch, inv, context, slot, new Vector2(num, num2));
+                    ItemSlot.Draw(spriteBatch, inv, ItemSlot.Context.InventoryItem, slot, new Vector2(num, num2));
                 }
             }
         }
