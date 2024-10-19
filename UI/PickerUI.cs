@@ -11,6 +11,9 @@ namespace MagiTronics.UI
 {
     internal class PickerUI : UIState
     {
+        private const int TEXTURE_SIZE = 32;
+        private const int PANEL_SIZE = 36;
+        private const int DELAY = 16;
         private TEAutoPicker autoPicker;
         private Vector2 worldPosition;
 
@@ -29,24 +32,38 @@ namespace MagiTronics.UI
             addbutton(true, false, TEAutoPicker.Direction.LEFT);
             addbutton(false, true, TEAutoPicker.Direction.DOWN);
             addbutton(true, true, TEAutoPicker.Direction.RIGHT);
+
+            Asset<Texture2D> asset = ModContent.Request<Texture2D>("MagiTronics/UI/StopButton");
+
+            AutoPickerInterface panel = new AutoPickerInterface(TEAutoPicker.Direction.STOP);
+            panel.Height.Set(PANEL_SIZE, 0);
+            panel.Width.Set(PANEL_SIZE, 0);
+            panel.Left.Set(DELAY, 0);
+            panel.Top.Set(DELAY, 0);
+
+            UIImage picker = new UIImage(asset);
+            picker.Top.Set(-DELAY + 4, 0);
+            picker.Left.Set(-DELAY + 4, 0);
+            panel.OnLeftClick += OnButtonClick;
+            Append(panel);
+            panel.Append(picker);
         }
 
         private void addbutton(bool horizontal, bool downright, TEAutoPicker.Direction dir)
         {
-            int delay = 16;
             Asset<Texture2D> asset = ModContent.Request<Texture2D>("Terraria/Images/UI/TexturePackButtons");
-            Rectangle rec = new Rectangle(downright ? 32 : 0, horizontal ? 32 : 0, 32, 32);
-            int align = 32 * (downright ? 1 : -1);
+            Rectangle rec = new(downright ? TEXTURE_SIZE : 0, horizontal ? TEXTURE_SIZE : 0, TEXTURE_SIZE, TEXTURE_SIZE);
+            int align = TEXTURE_SIZE * (downright ? 1 : -1);
 
             AutoPickerInterface panel = new AutoPickerInterface(dir);
-            panel.Height.Set(36, 0);
-            panel.Width.Set(36, 0);
-            panel.Left.Set(horizontal ? align + delay : delay, 0);
-            panel.Top.Set(horizontal ? delay : align + delay, 0);
+            panel.Height.Set(PANEL_SIZE, 0);
+            panel.Width.Set(PANEL_SIZE, 0);
+            panel.Left.Set(horizontal ? align + DELAY : DELAY, 0);
+            panel.Top.Set(horizontal ? DELAY : align + DELAY, 0);
 
             UIImageFramed picker = new UIImageFramed(asset, rec);
-            picker.Top.Set(-delay + 4, 0);
-            picker.Left.Set(-delay + 4, 0);
+            picker.Top.Set(-DELAY + 4, 0);
+            picker.Left.Set(-DELAY + 4, 0);
             panel.OnLeftClick += OnButtonClick;
             Append(panel);
             panel.Append(picker);
