@@ -1,4 +1,5 @@
-﻿using MagiTronics.Tiles;
+﻿using Humanizer;
+using MagiTronics.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -11,9 +12,6 @@ namespace MagiTronics.UI
 {
     internal class PickerUI : UIState
     {
-        private const int TEXTURE_SIZE = 32;
-        private const int PANEL_SIZE = 36;
-        private const int DELAY = 16;
         private TEAutoPicker autoPicker;
         private Vector2 worldPosition;
 
@@ -28,45 +26,24 @@ namespace MagiTronics.UI
 
         public override void OnInitialize()
         {
-            addbutton(false, false, TEAutoPicker.Direction.UP);
-            addbutton(true, false, TEAutoPicker.Direction.LEFT);
-            addbutton(false, true, TEAutoPicker.Direction.DOWN);
-            addbutton(true, true, TEAutoPicker.Direction.RIGHT);
+            addbutton("Up", 16, 0, TEAutoPicker.Direction.UP);
+            addbutton("Left", 0, 16, TEAutoPicker.Direction.LEFT);
+            addbutton("Down", 16, 32, TEAutoPicker.Direction.DOWN);
+            addbutton("Right", 32, 16, TEAutoPicker.Direction.RIGHT);
+            addbutton("Stop", 16, 16, TEAutoPicker.Direction.STOP);
 
-            Asset<Texture2D> asset = ModContent.Request<Texture2D>("MagiTronics/UI/StopButton");
-
-            AutoPickerInterface panel = new AutoPickerInterface(TEAutoPicker.Direction.STOP);
-            panel.Height.Set(PANEL_SIZE, 0);
-            panel.Width.Set(PANEL_SIZE, 0);
-            panel.Left.Set(DELAY, 0);
-            panel.Top.Set(DELAY, 0);
-
-            UIImage picker = new UIImage(asset);
-            picker.Top.Set(-DELAY + 4, 0);
-            picker.Left.Set(-DELAY + 4, 0);
-            panel.OnLeftClick += OnButtonClick;
-            Append(panel);
-            panel.Append(picker);
         }
 
-        private void addbutton(bool horizontal, bool downright, TEAutoPicker.Direction dir)
+        private void addbutton(string name, int left, int top, TEAutoPicker.Direction dir)
         {
-            Asset<Texture2D> asset = ModContent.Request<Texture2D>("Terraria/Images/UI/TexturePackButtons");
-            Rectangle rec = new(downright ? TEXTURE_SIZE : 0, horizontal ? TEXTURE_SIZE : 0, TEXTURE_SIZE, TEXTURE_SIZE);
-            int align = TEXTURE_SIZE * (downright ? 1 : -1);
+            Asset<Texture2D> asset = ModContent.Request<Texture2D>("MagiTronics/UI/"+name+"Button");
+            Asset<Texture2D> assetBorder = ModContent.Request<Texture2D>("MagiTronics/UI/"+name+"Button_Highlight");
 
-            AutoPickerInterface panel = new AutoPickerInterface(dir);
-            panel.Height.Set(PANEL_SIZE, 0);
-            panel.Width.Set(PANEL_SIZE, 0);
-            panel.Left.Set(horizontal ? align + DELAY : DELAY, 0);
-            panel.Top.Set(horizontal ? DELAY : align + DELAY, 0);
-
-            UIImageFramed picker = new UIImageFramed(asset, rec);
-            picker.Top.Set(-DELAY + 4, 0);
-            picker.Left.Set(-DELAY + 4, 0);
-            panel.OnLeftClick += OnButtonClick;
-            Append(panel);
-            panel.Append(picker);
+            AutoPickerButton button = new AutoPickerButton(asset, assetBorder, dir);
+            button.Left.Set(left, 0);
+            button.Top.Set(top, 0);
+            button.OnLeftClick += OnButtonClick;
+            Append(button);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -77,7 +54,7 @@ namespace MagiTronics.UI
 
         private void adjustPosition()
         {
-            Vector2 position = TerminalSystem.AdjustPosition(worldPosition);
+            Vector2 position = worldPosition - Main.screenPosition;
             Top.Set(position.Y, 0);
             Left.Set(position.X, 0);
             Recalculate();
@@ -85,7 +62,7 @@ namespace MagiTronics.UI
 
         private void OnButtonClick(UIMouseEvent evt, UIElement listeningElement)
         {
-            if (listeningElement is AutoPickerInterface autoPickerInterface)
+            if (listeningElement is AutoPickerButton autoPickerInterface)
             {
                 autoPicker.ChangeDir(autoPickerInterface.direction);
             }
