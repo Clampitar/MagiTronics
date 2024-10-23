@@ -89,11 +89,12 @@ namespace MagiTronics
         {
             Vector2 cameradistance = renderPosition - Main.Camera.Center;
             renderPosition -= Main.screenPosition;
+            cameradistance -= cameradistance * Main.GameViewMatrix.Zoom;
             if (Main.player[Main.myPlayer].gravDir == -1f)
             {
-                renderPosition.Y = (float)Main.screenHeight - renderPosition.Y - 16f;
+                renderPosition.Y = (float)Main.screenHeight - renderPosition.Y - (16f * Main.GameViewMatrix.Zoom.Y);
+                cameradistance.Y = -cameradistance.Y;
             }
-            cameradistance -= cameradistance * Main.GameViewMatrix.Zoom;
             return renderPosition - cameradistance;
         }
 

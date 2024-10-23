@@ -55,6 +55,10 @@ namespace MagiTronics.UI
         private void adjustPosition()
         {
             Vector2 position = worldPosition - Main.screenPosition;
+            if (Main.player[Main.myPlayer].gravDir == -1f)
+            {
+                position.Y = Main.screenHeight - position.Y - 48;
+            }
             Top.Set(position.Y, 0);
             Left.Set(position.X, 0);
             Recalculate();
