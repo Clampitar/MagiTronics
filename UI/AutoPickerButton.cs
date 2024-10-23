@@ -29,5 +29,20 @@ namespace MagiTronics.UI
             SetVisibility(0.6f, 1f);
         }
 
+        public override bool ContainsPoint(Vector2 point)
+        {
+            float globalTop = Top.Pixels + Parent.Top.Pixels;
+            float globalLeft = Left.Pixels + Parent.Left.Pixels;
+            Vector2 pos = new Vector2(globalLeft, globalTop) ;
+            Vector2 centerDistance = pos - Main.Camera.Center + Main.screenPosition;
+            centerDistance -= centerDistance * Main.GameViewMatrix.Zoom;
+            pos -= centerDistance;
+
+            return point.X > pos.X
+                && point.Y > pos.Y
+                && point.X < pos.X + (Width.Pixels * Main.GameViewMatrix.Zoom.X)
+                && point.Y < pos.Y + (Height.Pixels * Main.GameViewMatrix.Zoom.Y);
+        }
+
     }
 }

@@ -217,14 +217,22 @@ namespace MagiTronics
             if (mouseTextIndex != -1)
             {
                 layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-                    "YourMod: A Description",
+                    "Magitronics: ItemUsor UI",
                     delegate
                     {
                         _menuBar.Draw(Main.spriteBatch, new GameTime());
-                        _pickerInterface.Draw(Main.spriteBatch, new GameTime());
                         return true;
                     },
                     InterfaceScaleType.UI)
+                );
+                layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
+                    "Magitronics: ItemUsor UI",
+                    delegate
+                    {
+                        _pickerInterface.Draw(Main.spriteBatch, new GameTime());
+                        return true;
+                    },
+                    InterfaceScaleType.Game)
                 );
             }
         }
@@ -247,15 +255,6 @@ namespace MagiTronics
             }
             cameradistance -= cameradistance * Main.GameViewMatrix.Zoom;
             return renderPosition - cameradistance;
-        }
-
-        public override void PostDrawTiles()
-        {
-            Main.spriteBatch.Begin();
-            Main.tileBatch.Begin();
-            _pickerInterface.Draw(Main.spriteBatch, new GameTime());
-            Main.tileBatch.End();
-            Main.spriteBatch.End();
         }
 
 
