@@ -74,12 +74,22 @@ Items: {
 	}
 
 	AutoPicker: {
-		DisplayName: Auto Picker
+		DisplayName: Autopicker
 		Tooltip:
 			'''
 			Not a crafting station
 			70% pickaxe power
 			Mines tiles automatically
 			'''
+	}
+
+	ArtificialCore: {
+		DisplayName: Artificial Core
+		Tooltip: "Not for use in natural lifeforms"
+	}
+
+	TerraAnchor: {
+		DisplayName: Terra Anchor
+		Tooltip: "Holding it makes you feel more connected to this world"
 	}
 }
