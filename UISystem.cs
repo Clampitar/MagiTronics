@@ -143,7 +143,7 @@ namespace MagiTronics
 
         public void KilledUsor(Point16 pos)
         {
-            if (MenuBar.Usor.Position == pos)
+            if (MenuBar.Usor?.Position == pos)
             {
                 CloseUsorInventory();
             }
@@ -151,7 +151,7 @@ namespace MagiTronics
 
         public void KilledPicker(Point16 pos)
         {
-            if (PickerUI.AutoPicker.Position == pos)
+            if (PickerUI.AutoPicker?.Position == pos)
             {
                 CloseAutoPickerInterface();
             }

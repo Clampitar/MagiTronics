@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace MagiTronics.Tiles
 {
@@ -34,7 +38,7 @@ namespace MagiTronics.Tiles
 
         public TEAutoPicker()
         {
-            ChangeDir(Direction.STOP);
+            dir = Direction.STOP;
         }
         public override bool IsTileValidForEntity(int x, int y)
         {
@@ -52,8 +56,49 @@ namespace MagiTronics.Tiles
             }
         }
 
+        public override void NetSend(BinaryWriter writer)
+        {
+            writer.Write(usorPlayer.position.X);
+            writer.Write(usorPlayer.position.Y);
+        }
+
+        public override void NetReceive(BinaryReader reader)
+        {
+            usorPlayer.position.X = reader.ReadSingle();
+            usorPlayer.position.Y = reader.ReadSingle();
+        }
+
+        public override void SaveData(TagCompound tag)
+        {
+            tag.Set("dir", (short)dir);
+            Vector2 pos = usorPlayer.position;
+            tag.Set("pos", pos);
+        }
+
+        public override void LoadData(TagCompound tag)
+        {
+            if (tag.ContainsKey("dir"))
+            {
+                ChangeDir((Direction)tag.GetAsShort("dir"));
+            }
+            if (tag.ContainsKey("pos"))
+            {
+                usorPlayer.position = tag.Get<Vector2>("pos");
+            }
+        }
+
         public void ChangeDir(Direction direction)
         {
+            if ((Main.netMode == NetmodeID.MultiplayerClient))
+            {
+                ModPacket modPacket = Mod.GetPacket();
+                modPacket.Write((byte)MagiTronics.PacketId.PICKERDIR);
+                modPacket.Write(Position.X);
+                modPacket.Write(Position.Y);
+                modPacket.Write((byte)direction);
+                modPacket.Send();
+                return;
+            }
             dir = direction;
             switch (direction)
             {
@@ -79,6 +124,11 @@ namespace MagiTronics.Tiles
             }
         }
 
+        public void PickTile(int x, int y)
+        {
+            usorPlayer.PickTile(x, y, power);
+        }
+
         private void Pick()
         {
             if (dir == Direction.STOP) { return; }
@@ -97,7 +147,29 @@ namespace MagiTronics.Tiles
             if(p!= Point16.NegativeOne && mindepth != -1)
             {
                 p += Go(mindepth);
-                usorPlayer.PickTile(p.X, p.Y, power);
+                if (Main.netMode == NetmodeID.Server)
+                {
+                    useTime = pickTime;
+                    ModPacket modPacket = Mod.GetPacket();
+                    modPacket.Write((byte)MagiTronics.PacketId.PICKERDIR);
+                    modPacket.Write(Position.X);
+                    modPacket.Write(Position.Y);
+                    modPacket.Write(p.X);
+                    modPacket.Write(p.Y);
+                    /*for (int playerIndex = 0; playerIndex< 256; playerIndex++)
+                    {
+                        if (Netplay.Clients[playerIndex].IsConnected())
+                        {
+                            modPacket.Send(toClient: playerIndex);
+                            break;
+                        }
+                    }*/
+                    modPacket.Send();
+                }
+                else
+                {
+                    PickTile(p.X, p.Y);
+                }
             }
         }
 

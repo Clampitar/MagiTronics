@@ -18,7 +18,8 @@ namespace MagiTronics
             TICKTIMER = 0,
             SINGLETERMINAL = 1,
             WORLDLOAD = 2,
-            USORITEM = 3
+            USORITEM = 3,
+            PICKERDIR = 4
         }
         public override void Load()
         {
@@ -104,6 +105,20 @@ namespace MagiTronics
                     if (TileEntity.ByPosition.TryGetValue(usorPos, out var value) && value is TEItemUsor usor)
                     {
                         usor.SyncedItem(reader);
+                    }
+                    break;
+                case PacketId.PICKERDIR:
+                    Point16 pickerPos = new Point16(reader.ReadInt16(), reader.ReadInt16());
+                    if (TileEntity.ByPosition.TryGetValue(pickerPos, out var te) && te is TEAutoPicker picker)
+                    {
+                        if(Main.netMode == NetmodeID.MultiplayerClient)
+                        {
+                            picker.PickTile(reader.ReadInt16(), reader.ReadInt16());
+                        } else
+                        {
+                            byte dir = reader.ReadByte();
+                            picker.ChangeDir((TEAutoPicker.Direction)dir);
+                        }
                     }
                     break;
                 default:
