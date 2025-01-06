@@ -10,7 +10,7 @@ using Terraria.ModLoader.IO;
 
 namespace MagiTronics.Tiles
 {
-    internal class TEAutoPicker : TEItemUsor
+    internal class TEAutoPicker : ModTileEntity
     {
         private static readonly int pickTime = new Item(ItemID.NightmarePickaxe).useTime;
 
@@ -25,6 +25,8 @@ namespace MagiTronics.Tiles
         private delegate Point16 SearchDirection(int i = 1);
 
         SearchDirection Go;
+
+        protected Player usorPlayer;
         public enum Direction
         {
             STOP = 0,
@@ -38,6 +40,7 @@ namespace MagiTronics.Tiles
 
         public TEAutoPicker()
         {
+            usorPlayer = new Player();
             dir = Direction.STOP;
         }
         public override bool IsTileValidForEntity(int x, int y)
@@ -85,6 +88,19 @@ namespace MagiTronics.Tiles
             {
                 usorPlayer.position = tag.Get<Vector2>("pos");
             }
+        }
+
+        public override int Hook_AfterPlacement(int x, int y, int type, int style, int direction, int alternate)
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                NetMessage.SendData(MessageID.TileEntityPlacement, number: x, number2: y, number3: Type);
+            }
+            Point16 tileOrigin = new Point16(0, 1);
+            int placedEntity = Place(x - tileOrigin.X, y - tileOrigin.Y);
+            TEAutoPicker iu = (TEAutoPicker)TileEntity.ByID[placedEntity];
+            iu.usorPlayer.position = new Microsoft.Xna.Framework.Vector2(iu.Position.X, iu.Position.Y) * 16;
+            return placedEntity;
         }
 
         public void ChangeDir(Direction direction)
@@ -156,15 +172,14 @@ namespace MagiTronics.Tiles
                     modPacket.Write(Position.Y);
                     modPacket.Write(p.X);
                     modPacket.Write(p.Y);
-                    /*for (int playerIndex = 0; playerIndex< 256; playerIndex++)
+                    for (int playerIndex = 0; playerIndex< 256; playerIndex++)
                     {
                         if (Netplay.Clients[playerIndex].IsConnected())
                         {
                             modPacket.Send(toClient: playerIndex);
                             break;
                         }
-                    }*/
-                    modPacket.Send();
+                    }
                 }
                 else
                 {
