@@ -49,10 +49,13 @@ namespace MagiTronics.Tiles
         {
             foreach(Point16 p in AdjecentTiles)
             {
-                Tile tile = Main.tile[p.X+x, p.Y+y];
-                if(tile.HasTile && tile.TileType == ModContent.TileType<LonelySensor>())
+                if (p.X > 5 && p.Y > 5 && p.X < Main.maxTilesX - 5 && p.Y < Main.maxTilesY - 5 && Main.tile[p] != null)
                 {
-                    UpdateLoneliness(p.X + x, p.Y + y, killWall);
+                    Tile tile = Main.tile[p.X + x, p.Y + y];
+                    if (tile.HasTile && tile.TileType == ModContent.TileType<LonelySensor>())
+                    {
+                        UpdateLoneliness(p.X + x, p.Y + y, killWall);
+                    }
                 }
             }
             Tile here = Main.tile[x, y];
@@ -66,18 +69,21 @@ namespace MagiTronics.Tiles
         {
             bool lonely = true;
             foreach (Point16 p in AdjecentTiles) {
-                Tile adjecent = Main.tile[x+p.X, y+p.Y];
-                if (adjecent.HasTile || adjecent.WallType != WallID.None)
+                if (p.X > 5 && p.Y > 5 && p.X < Main.maxTilesX - 5 && p.Y < Main.maxTilesY - 5 && Main.tile[p] != null)
                 {
-                    if (killWall && !adjecent.HasTile)
+                    Tile adjecent = Main.tile[x + p.X, y + p.Y];
+                    if (adjecent.HasTile || adjecent.WallType != WallID.None)
                     {
-                        killWall = false;
-                        continue;
-                    }
-                    else
-                    {
-                        lonely = false;
-                        break;
+                        if (killWall && !adjecent.HasTile)
+                        {
+                            killWall = false;
+                            continue;
+                        }
+                        else
+                        {
+                            lonely = false;
+                            break;
+                        }
                     }
                 }
             }
