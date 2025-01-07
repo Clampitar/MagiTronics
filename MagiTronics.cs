@@ -19,7 +19,8 @@ namespace MagiTronics
             SINGLETERMINAL = 1,
             WORLDLOAD = 2,
             USORITEM = 3,
-            PICKERDIR = 4
+            PICKERDIR = 4,
+            USORITEMUSE = 5
         }
         public override void Load()
         {
@@ -60,7 +61,6 @@ namespace MagiTronics
                 MonoModHooks.DumpIL(ModContent.GetInstance<MagiTronics>(), il);
             }
         }
-
 
         public override void HandlePacket(BinaryReader reader, int whoAmI)
         {
@@ -118,6 +118,20 @@ namespace MagiTronics
                         {
                             byte dir = reader.ReadByte();
                             picker.ChangeDir((TEAutoPicker.Direction)dir);
+                        }
+                    }
+                    break;
+                case PacketId.USORITEMUSE:
+                    Point16 itemUsorPos = new Point16(reader.ReadInt16(), reader.ReadInt16());
+                    if (TileEntity.ByPosition.TryGetValue(itemUsorPos, out var iu) && iu is TEItemUsor itemUsor)
+                    {
+                        if (Main.netMode == NetmodeID.MultiplayerClient)
+                        {
+                            itemUsor.Player.controlUseItem = true;
+                        }
+                        else
+                        {
+                            
                         }
                     }
                     break;

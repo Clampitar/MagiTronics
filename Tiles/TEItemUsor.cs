@@ -1,4 +1,5 @@
 ﻿
+using MagiTronics.Items;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -284,8 +285,16 @@ namespace MagiTronics.Tiles
         }
         public override void Update()
         {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                Use();
+            }
+        }
+
+        public void Use()
+        {
             Point16 target = Target();
-            
+
             if (target != Point16.NegativeOne)
             {
                 int prevX = Player.tileTargetX;
@@ -299,8 +308,8 @@ namespace MagiTronics.Tiles
                 Player.tileRangeY -= Main.maxTilesY;
                 Player.tileTargetX = prevX;
                 Player.tileTargetY = prevY;
-            } 
-            
+            }
+
             Player.controlUseItem = false;
         }
         override protected void UpdateTarget(bool right, bool down)

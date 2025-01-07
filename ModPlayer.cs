@@ -42,7 +42,7 @@ namespace MagiTronics
         {
             if (Main.netMode != NetmodeID.Server)
             {
-                ModContent.GetInstance<UISystem>().checkValidUI(this.Player);
+                ModContent.GetInstance<UISystem>().CheckValidUI(this.Player);
             }
         }
 

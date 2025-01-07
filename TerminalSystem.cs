@@ -46,7 +46,6 @@ namespace MagiTronics
 
         public void SendWorldData()
         {
-            Console.WriteLine("list is " + modedActuators.Count());
             ModPacket modPacket = Mod.GetPacket();
             modPacket.Write((byte)2);
             modPacket.Write(modedActuators.Count);
@@ -284,6 +283,18 @@ namespace MagiTronics
         private void SyncTerminal(Point16 point, bool add)
         {
             SyncTerminal(point.X, point.Y, add);
+        }
+
+        public override void PreUpdateEntities()
+        {
+            if (Main.netMode != NetmodeID.MultiplayerClient) return;
+            foreach (TileEntity te in TileEntity.ByID.Values)
+            {
+                if(te is TEItemUsor itemUsor)
+                {
+                    itemUsor.Use();
+                }
+            }
         }
 
     }

@@ -49,9 +49,11 @@ namespace MagiTronics.Tiles
         {
             foreach(Point16 p in AdjecentTiles)
             {
-                if (p.X > 5 && p.Y > 5 && p.X < Main.maxTilesX - 5 && p.Y < Main.maxTilesY - 5 && Main.tile[p] != null)
+                int px = p.X + x;
+                int py = p.Y + y;
+                if (px > 5 && py > 5 && px < Main.maxTilesX - 5 && py < Main.maxTilesY - 5 && Main.tile[px, py] != null)
                 {
-                    Tile tile = Main.tile[p.X + x, p.Y + y];
+                    Tile tile = Main.tile[px, py]; ;
                     if (tile.HasTile && tile.TileType == ModContent.TileType<LonelySensor>())
                     {
                         UpdateLoneliness(p.X + x, p.Y + y, killWall);
@@ -69,9 +71,11 @@ namespace MagiTronics.Tiles
         {
             bool lonely = true;
             foreach (Point16 p in AdjecentTiles) {
-                if (p.X > 5 && p.Y > 5 && p.X < Main.maxTilesX - 5 && p.Y < Main.maxTilesY - 5 && Main.tile[p] != null)
+                int px = p.X + x;
+                int py = p.Y + y;
+                if (px > 5 && py > 5 && px < Main.maxTilesX - 5 && py < Main.maxTilesY - 5 && Main.tile[px, py] != null)
                 {
-                    Tile adjecent = Main.tile[x + p.X, y + p.Y];
+                    Tile adjecent = Main.tile[px, py];
                     if (adjecent.HasTile || adjecent.WallType != WallID.None)
                     {
                         if (killWall && !adjecent.HasTile)

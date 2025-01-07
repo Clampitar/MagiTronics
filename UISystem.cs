@@ -157,11 +157,26 @@ namespace MagiTronics
             }
         }
 
-        public void checkValidUI(Player player)
+        public void CheckValidUI(Player player)
         {
+            if (_pickerInterface.CurrentState != null)
+            {
+                int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
+                int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
+                Vector2 pos = PickerUI.AutoPicker.Position.ToVector2() * 16;
+                Rectangle rect = new Rectangle((int)(pos.X), (int)(pos.Y), 32, 32);//temp
+                rect.Inflate(-1, -1);
+                Point point = rect.ClosestPointInRect(player.Center).ToTileCoordinates();
+                int pickerX = point.X;
+                int pickerY = point.Y;
+                if (playerX < pickerX - Player.tileRangeX || playerX > pickerX + Player.tileRangeX + 1 || playerY < pickerY - Player.tileRangeY || playerY > pickerY + Player.tileRangeY)
+                {
+                    CloseAutoPickerInterface();
+                }
+            }
             if (_menuBar.CurrentState != null)
             {
-                if (player.chest != -1)
+                if (player.chest != -1 || !Main.playerInventory)
                 {
                     CloseUsorInventory();
                     return;
@@ -177,22 +192,6 @@ namespace MagiTronics
                 if (playerX < chestPointX - Player.tileRangeX || playerX > chestPointX + Player.tileRangeX + 1 || playerY < chestPointY - Player.tileRangeY || playerY > chestPointY + Player.tileRangeY)
                 {
                     CloseUsorInventory();
-                    Main.NewText("too far from" + pos);
-                }
-            }
-            if (_pickerInterface.CurrentState != null)
-            {
-                int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
-                int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
-                Vector2 pos = PickerUI.AutoPicker.Position.ToVector2() * 16;
-                Rectangle rect = new Rectangle((int)(pos.X), (int)(pos.Y), 32, 32);//temp
-                rect.Inflate(-1, -1);
-                Point point = rect.ClosestPointInRect(player.Center).ToTileCoordinates();
-                int pickerX = point.X;
-                int pickerY = point.Y;
-                if (playerX < pickerX - Player.tileRangeX || playerX > pickerX + Player.tileRangeX + 1 || playerY < pickerY - Player.tileRangeY || playerY > pickerY + Player.tileRangeY)
-                {
-                    CloseAutoPickerInterface();
                 }
             }
         }

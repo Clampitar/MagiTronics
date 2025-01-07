@@ -45,7 +45,25 @@ namespace MagiTronics.Tiles
                 Wiring.SkipWire(x, y);
                 return;
             }
-            redirector.Player.controlUseItem = true;
+            if (Main.netMode == NetmodeID.Server)
+            {
+                ModPacket modPacket = Mod.GetPacket();
+                modPacket.Write((byte)MagiTronics.PacketId.USORITEMUSE);
+                modPacket.Write(redirector.Position.X);
+                modPacket.Write(redirector.Position.Y);
+                for (int playerIndex = 0; playerIndex < 256; playerIndex++)
+                {
+                    if (Netplay.Clients[playerIndex].IsConnected())
+                    {
+                        modPacket.Send(toClient: playerIndex);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                redirector.Player.controlUseItem = true;
+            }
             Wiring.SkipWire(x, y);
         }
 
