@@ -70,6 +70,7 @@ Items: {
 			'''
 			Uses items
 			Activated by wire
+			Terminals must be wired
 			'''
 	}
 
@@ -80,16 +81,17 @@ Items: {
 			Not a crafting station
 			70% pickaxe power
 			Mines tiles automatically
+			A terminal must be wired
 			'''
 	}
 
 	ArtificialCore: {
 		DisplayName: Artificial Core
-		Tooltip: "Not for use in natural lifeforms"
+		Tooltip: Not for use in natural lifeforms
 	}
 
 	TerraAnchor: {
 		DisplayName: Terra Anchor
-		Tooltip: "Holding it makes you feel more connected to this world"
+		Tooltip: Holding it makes you feel more connected to this world
 	}
 }

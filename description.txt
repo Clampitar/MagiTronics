@@ -1,16 +1,7 @@
-Introduces three sets of items
+Magitronics is a mod that expands Terraria's wiring system and adds items that aid in advanced logic and automation, including:
 
--Two pumps that interact with chests, allowing you to pump water directly in and out of chests.
+-The logic filter, tick timer and extra Logic sensors, witch make use of logic gate lamp
 
-	Step 1. Fill a chest with buckets or sponges
-	Step 2. Connect modded pump and chest with wiring
+-The Tedirector and Usage terminal, which, togather with wiring, can change what tile the player is targeting
 
--The Redirector and terminal, wich redirects most items. If you use an item on a redirector that is connected to a terminal via wiring, the item's usage will be redirected to the terminal
-
--The logic filter, tick timer and extra Logic sensors, witch make use of logic gate lamps
-
-	-The logic filter, when placed on a logic gate, changes its behaviour: instead of activating when a logic lamp changes state, the logic gate activates when the filter recieves the signal (and if the lamps satisfy the gate condition)
-	-The tick timer sends a signal every tick. If logic lamps are placed above it, the number of ticks between signals will correspond to the the lamps' value in binary*
-	-the signal counter, witch sends the amount of signals recieved to logic lamps placed above*
-
-	*logic lamp values are in binary, with (off) as 0 and (on) as 1, starting with the lowest lamp
+and more!
