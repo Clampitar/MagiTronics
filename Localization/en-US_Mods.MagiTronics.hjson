@@ -94,4 +94,40 @@ Items: {
 		DisplayName: Terra Anchor
 		Tooltip: Holding it makes you feel more connected to this world
 	}
+
+	DefendersForge: {
+		DisplayName: Worldy Defenders Forge
+		Tooltip:
+			'''
+			Can be used to store this world's items
+			Stored items can be accessed by server-owned entities
+			'''
+	}
+
+	PiggyBank: {
+		DisplayName: Worldy Piggy Bank
+		Tooltip:
+			'''
+			Can be used to store this world's items
+			Stored items can be accessed by server-owned entities
+			'''
+	}
+
+	Safe: {
+		DisplayName: Worldy Safe
+		Tooltip:
+			'''
+			Can be used to store this world's items
+			Stored items can be accessed by server-owned entities
+			'''
+	}
+
+	VoidVault: {
+		DisplayName: Worldy Void Vault
+		Tooltip:
+			'''
+			Can be used to store this world's items
+			Stored items can be accessed by server-owned entities
+			'''
+	}
 }
