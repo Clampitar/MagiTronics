@@ -341,6 +341,13 @@ namespace MagiTronics.Tiles
                 }
             }
         }
+
+        public void RightClick()
+        {
+            Main.LocalPlayer.tileEntityAnchor.Set(ID, Position.X, Position.Y);
+            ModContent.GetInstance<BankSystem>().currentIU = this;
+            ModContent.GetInstance<UISystem>().ToggleUI(usorPlayer.inventory, Position, BankSystem.BankType.ItemUsor);
+        }
         public override Player Player => usorPlayer;
     }
 }

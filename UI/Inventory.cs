@@ -4,21 +4,19 @@ using Terraria.UI;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameInput;
-using MagiTronics.Tiles;
+using Terraria.ModLoader;
 
 namespace MagiTronics.UI
 {
-    class UsorInventory : UIElement
+    class InventoryUI : UIElement
     {
         Color color = new(255, 255, 255);
-        private TEItemUsor itemUsor = new();
 
-        public TEItemUsor Usor { get => itemUsor; set => itemUsor = value; }
-
+        public Item[] Inv;
+        public BankSystem.BankType bankType;
         public override void Draw(SpriteBatch spriteBatch)
         {
             
-            Item[] inv = itemUsor.Player.inventory;
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 5; j++)
@@ -32,16 +30,23 @@ namespace MagiTronics.UI
                     {
                         Main.LocalPlayer.mouseInterface = true;
                         int context = ItemSlot.Context.ChestItem;
-                        ItemSlot.OverrideHover(inv, context, slot);
-                        ItemSlot.LeftClick(inv, context, slot);
-                        itemUsor.OverrideRightClick(slot);
+                        ItemSlot.OverrideHover(Inv, context, slot);
+                        ItemSlot.LeftClick(Inv, context, slot);
+                        if (bankType == BankSystem.BankType.ItemUsor)
+                        {
+                            ModContent.GetInstance<BankSystem>().currentIU.OverrideRightClick(slot);
+                        }
+                        else
+                        {
+                            ItemSlot.RightClick(Inv, ItemSlot.Context.InventoryItem, slot);
+                        }
                         if (Main.mouseLeftRelease && Main.mouseLeft)
                             Recipe.FindRecipes();
 
-                        ItemSlot.MouseHover(inv, context, slot);
+                        ItemSlot.MouseHover(Inv, context, slot);
 
                     }
-                    ItemSlot.Draw(spriteBatch, inv, ItemSlot.Context.InventoryItem, slot, new Vector2(num, num2));
+                    ItemSlot.Draw(spriteBatch, Inv, ItemSlot.Context.InventoryItem, slot, new Vector2(num, num2));
                 }
             }
         }

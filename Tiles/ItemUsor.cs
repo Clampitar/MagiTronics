@@ -87,8 +87,7 @@ namespace MagiTronics.Tiles
             TEItemUsor iu = FindByGuessing(x, y);
             if (iu != null)
             {
-                Main.LocalPlayer.tileEntityAnchor.Set(iu.ID, x, y);
-                ModContent.GetInstance<UISystem>().ToggleUI(iu);
+                iu.RightClick();
                 return true;
             }
 

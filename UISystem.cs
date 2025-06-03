@@ -1,20 +1,13 @@
-﻿
-using MagiTronics.Items;
-using MagiTronics.Tiles;
+﻿using MagiTronics.Tiles;
 using MagiTronics.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.GameContent;
-using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 using Terraria.UI;
 
 namespace MagiTronics
@@ -48,24 +41,24 @@ namespace MagiTronics
             _pickerInterface?.Update(gameTime);
         }
 
-        public void ToggleUI(TEItemUsor usor)
+        public void ToggleUI(Item[] inv, Point16 position, BankSystem.BankType type)
         {
             if (_menuBar != null)
             {
                 if (_menuBar.CurrentState != null)
                 {
-                    if (MenuBar.Usor == usor)
+                    if (MenuBar.inv == inv)
                     {
-                        CloseUsorInventory();
+                        ClosInventory();
                     }
                     else
                     {
-                        OpenUI(usor, true);
+                        OpenUI(inv, true, position, type);
                     }
                 }
                 else
                 {
-                    OpenUI(usor, false);
+                    OpenUI(inv, false, position, type);
                 }
             }
         }
@@ -92,10 +85,12 @@ namespace MagiTronics
             }
         }
 
-        private void OpenUI(TEItemUsor usor, bool hadInvOpen)
+        private void OpenUI(Item[] inv, bool hadInvOpen, Point16 position, BankSystem.BankType type)
         {
             Player player = Main.LocalPlayer;
-            MenuBar.Usor = usor;
+            MenuBar.inv = inv;
+            MenuBar.position = position;
+            MenuBar.bankType = type;
             _menuBar.SetState(MenuBar);
             //credits to blueshiemagic's Magic Storage for the following
             Main.mouseRightRelease = false;
@@ -128,8 +123,8 @@ namespace MagiTronics
             }
             bool hadchestOpen = player.chest != -1;
             player.chest = -1;
-            player.chestX = (int)(usor.Position.X / 16);
-            player.chestY = (int)(usor.Position.Y / 16);
+            player.chestX = (int)(position.X / 16);
+            player.chestY = (int)(position.Y / 16);
             Main.playerInventory = true;
             SoundEngine.PlaySound(hadchestOpen || hadInvOpen ? SoundID.MenuTick : SoundID.MenuOpen);
         }
@@ -143,9 +138,9 @@ namespace MagiTronics
 
         public void KilledUsor(Point16 pos)
         {
-            if (MenuBar.Usor?.Position == pos)
+            if (MenuBar.position == pos)
             {
-                CloseUsorInventory();
+                ClosInventory();
             }
         }
 
@@ -178,12 +173,12 @@ namespace MagiTronics
             {
                 if (player.chest != -1 || !Main.playerInventory)
                 {
-                    CloseUsorInventory();
+                    ClosInventory();
                     return;
                 }
                 int playerX = (int)(((double)player.position.X + (double)player.width * 0.5) / 16.0);
                 int playerY = (int)(((double)player.position.Y + (double)player.height * 0.5) / 16.0);
-                Vector2 pos = MenuBar.Usor.Position.ToVector2() * 16;
+                Vector2 pos = MenuBar.position.ToVector2() * 16;
                 Rectangle rect = new Rectangle((int)(pos.X), (int)(pos.Y), 32, 32);//temp
                 rect.Inflate(-1, -1);
                 Point point = rect.ClosestPointInRect(player.Center).ToTileCoordinates();
@@ -191,12 +186,12 @@ namespace MagiTronics
                 int chestPointY = point.Y;
                 if (playerX < chestPointX - Player.tileRangeX || playerX > chestPointX + Player.tileRangeX + 1 || playerY < chestPointY - Player.tileRangeY || playerY > chestPointY + Player.tileRangeY)
                 {
-                    CloseUsorInventory();
+                    ClosInventory();
                 }
             }
         }
 
-        public void CloseUsorInventory()
+        public void ClosInventory()
         {
             _menuBar.SetState(null);
             Main.editChest = false;
@@ -239,7 +234,7 @@ namespace MagiTronics
         public override void OnWorldLoad()
         {
             if (_menuBar != null && _menuBar.CurrentState != null)
-                CloseUsorInventory();
+                ClosInventory();
             if (_pickerInterface != null && _pickerInterface.CurrentState != null)
                 CloseAutoPickerInterface();
         }

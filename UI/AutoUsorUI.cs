@@ -1,18 +1,18 @@
-﻿using MagiTronics.Tiles;
-using Terraria;
-using Terraria.ID;
+﻿using Terraria;
+using Terraria.DataStructures;
 using Terraria.UI;
 
 namespace MagiTronics.UI
 {
     internal class AutoUsorUI : UIState
     {
-        public UsorInventory inventory;
-
-        public TEItemUsor Usor { get => inventory.Usor; set => inventory.Usor = value; }
+        private InventoryUI inventory;
+        public Point16 position;
+        public BankSystem.BankType bankType { get => inventory.bankType; set => inventory.bankType = value; }
+        public Item[] inv { get => inventory.Inv; set => inventory.Inv = value; }
         public override void OnInitialize()
         {
-            inventory = new UsorInventory();
+            inventory = new InventoryUI();
             Append(inventory);
         }
     }
