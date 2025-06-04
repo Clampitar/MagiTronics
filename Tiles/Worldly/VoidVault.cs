@@ -17,8 +17,11 @@ namespace MagiTronics.Tiles.Worldly
 
         public override bool RightClick(int x, int y)
         {
-
-            return false;
+            ModContent.GetInstance<UISystem>().ToggleUI(
+                ModContent.GetInstance<BankSystem>().VoidVault.item,
+                new Terraria.DataStructures.Point16(x, y),
+                BankSystem.BankType.VoidVault);
+            return true;
         }
 
     }

@@ -29,5 +29,16 @@ namespace MagiTronics
             DefendersForge = 4,
             ItemUsor = 5
         }
+
+        public BankSystem()
+        {
+            for (int i = 0; i < 40; i++)
+            {
+                PiggyBank.item[i] = new Item();
+                Safe.item[i] = new Item();
+                VoidVault.item[i] = new Item();
+                DefendersForge.item[i] = new Item();
+            }
+        }
     }
 }

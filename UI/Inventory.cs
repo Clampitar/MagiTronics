@@ -19,7 +19,7 @@ namespace MagiTronics.UI
             
             for (int i = 0; i < 10; i++)
             {
-                for (int j = 0; j < 5; j++)
+                for (int j = 0; j < (bankType == BankSystem.BankType.ItemUsor ? 5 : 4); j++)
                 {
                     int num = (int)(73f + (float)(i * 56) * Main.inventoryScale);
                     int num2 = (int)((float)Main.instance.invBottom + (float)(j * 56) * Main.inventoryScale);
