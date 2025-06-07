@@ -20,7 +20,8 @@ namespace MagiTronics
             WORLDLOAD = 2,
             USORITEM = 3,
             PICKERDIR = 4,
-            USORITEMUSE = 5
+            USORITEMUSE = 5,
+            BANKSYNC = 6
         }
         public override void Load()
         {
@@ -134,6 +135,9 @@ namespace MagiTronics
                             
                         }
                     }
+                    break;
+                case PacketId.BANKSYNC:
+                    ModContent.GetInstance<BankSystem>().SyncedItem(reader);
                     break;
                 default:
                     Logger.Warn("id not recognized");

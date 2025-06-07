@@ -29,7 +29,7 @@ namespace MagiTronics.UI
                         TextureAssets.InventoryBack.Height() * Main.inventoryScale) && !PlayerInput.IgnoreMouseInterface)
                     {
                         Main.LocalPlayer.mouseInterface = true;
-                        int context = ItemSlot.Context.ChestItem;
+                        int context = bankType == BankSystem.BankType.ItemUsor ? ItemSlot.Context.ChestItem : ItemSlot.Context.BankItem;
                         ItemSlot.OverrideHover(Inv, context, slot);
                         ItemSlot.LeftClick(Inv, context, slot);
                         if (bankType == BankSystem.BankType.ItemUsor)
@@ -39,6 +39,11 @@ namespace MagiTronics.UI
                         else
                         {
                             ItemSlot.RightClick(Inv, ItemSlot.Context.InventoryItem, slot);
+                            if((Main.mouseLeftRelease && Main.mouseLeft)
+                                || Main.mouseRightRelease || Main.mouseRight)
+                            {
+                                ModContent.GetInstance<BankSystem>().SyncItem(bankType, slot);
+                            }
                         }
                         if (Main.mouseLeftRelease && Main.mouseLeft)
                             Recipe.FindRecipes();
